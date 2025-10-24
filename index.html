@@ -29,7 +29,7 @@
       line-height: 1.6;
       min-height: 100vh;
       padding: 20px;
-      background-image: 
+      background-image:
         radial-gradient(circle at 15% 50%, rgba(124, 58, 237, 0.1) 0%, transparent 20%),
         radial-gradient(circle at 85% 30%, rgba(167, 139, 250, 0.05) 0%, transparent 20%);
     }
@@ -90,7 +90,9 @@
       overflow: hidden;
       transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1), padding 0.3s ease;
     }
-    .season.open .episodes { padding-bottom: 24px; }
+    .season.open .episodes {
+      padding-bottom: 24px;
+    }
 
     .episode-btn {
       padding: 14px 8px;
@@ -106,23 +108,28 @@
       position: relative;
       overflow: hidden;
     }
+    .episode-btn::before {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.7s;
+    }
     .episode-btn:hover { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(124,58,237,0.4); }
+    .episode-btn:hover::before { left: 100%; }
+    .episode-number { font-size: 1.1rem; }
+    .episode-duration { font-size: 0.75rem; color: var(--text-secondary); opacity: 0.8; }
 
-    footer { text-align:center; padding:40px 0 20px; color:var(--text-muted); font-size:0.9rem; margin-top:40px; border-top:1px solid rgba(255,255,255,0.05); }
-    .heart { color:#ef4444; display:inline-block; animation:pulse 1.5s infinite; }
-    @keyframes pulse {0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
-
-    /* ---- модалка ---- */
     .modal {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      display: flex; justify-content: center; align-items: center;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       z-index: 1000;
-      opacity: 0; visibility: hidden;
+      opacity: 0;
+      visibility: hidden;
       transition: opacity 0.4s ease, visibility 0.4s ease;
     }
-
     .modal::before {
       content: "";
       position: absolute;
@@ -132,9 +139,7 @@
       -webkit-backdrop-filter: blur(10px);
       z-index: -1;
     }
-
     .modal.active { opacity: 1; visibility: visible; }
-
     .modal-content {
       background: rgba(24, 24, 27, 0.97);
       border-radius: var(--border-radius);
@@ -143,29 +148,39 @@
       width: 90%;
       text-align: center;
       box-shadow: var(--shadow);
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid rgba(255, 255, 255, 0.07);
       transform: scale(0.9);
-      transition: transform 0.4s ease, opacity 0.4s ease;
-      opacity: 0;
+      transition: transform 0.4s ease;
     }
-    .modal.active .modal-content { transform: scale(1); opacity: 1; }
+    .modal.active .modal-content { transform: scale(1); }
 
     .modal-icon { font-size: 3rem; color: var(--accent-primary); margin-bottom: 20px; }
     .modal h3 { font-size: 1.5rem; margin-bottom: 15px; color: var(--text-primary); }
     .modal p { color: var(--text-secondary); margin-bottom: 25px; line-height: 1.6; }
+
     .modal-actions { display: flex; gap: 12px; justify-content: center; }
-
-    .btn { padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: var(--transition); border: none; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
-    .btn-primary { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color:white; }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow:0 5px 15px rgba(124,58,237,0.4); }
-
-    @media(max-width:768px){
-      .header h1{font-size:2rem}
-      .season-header{padding:16px 20px}
-      .episodes{grid-template-columns:repeat(auto-fill,minmax(60px,1fr));padding:0 20px 20px}
-      .season.open .episodes{padding:0 20px 20px}
-      .modal-actions{flex-direction:column}
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
     }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: white;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(124,58,237,0.4); }
+
+    footer { text-align:center; padding:40px 0 20px; color:var(--text-muted); font-size:0.9rem; margin-top:40px; border-top:1px solid rgba(255,255,255,0.05); }
+    .heart { color:#ef4444; display:inline-block; animation:pulse 1.5s infinite; }
+    @keyframes pulse {0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
   </style>
 </head>
 <body>
@@ -184,13 +199,10 @@
 
   <div id="modal" class="modal">
     <div class="modal-content">
-      <div class="modal-icon"><i class="fas fa-hand-holding-heart"></i></div>
+      <div class="modal-icon"><i class="fas fa-heart"></i></div>
       <h3>Спасибо, что вы с нами!</h3>
-      <p>
-        Наш сервис полностью бесплатен, поэтому иногда вы можете увидеть рекламу.
-        Вы можете <strong>поддержать проект</strong> донатом звёздами на главной странице бота ❤️<br><br>
-        А сейчас — приятного просмотра!
-      </p>
+      <p>Наш сервис полностью бесплатен. Иногда вы можете увидеть рекламу или поддержать нас донатом звёздами на главной странице бота.  
+      А ещё вы можете просто рассказать о нас друзьям 💜</p>
       <div class="modal-actions">
         <a id="modal-open" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
           <i class="fas fa-play"></i> Продолжить просмотр
@@ -245,8 +257,14 @@
           season.episodes.forEach(ep => {
             const btn = document.createElement("button");
             btn.className = "episode-btn";
-            btn.innerHTML = `<span class="episode-number">${ep.number}</span>
-                             <span class="episode-duration">${ep.duration || ""}</span>`;
+            const numberSpan = document.createElement("span");
+            numberSpan.className = "episode-number";
+            numberSpan.textContent = ep.number || "";
+            const durationSpan = document.createElement("span");
+            durationSpan.className = "episode-duration";
+            durationSpan.textContent = ep.duration || "";
+            btn.appendChild(numberSpan);
+            btn.appendChild(durationSpan);
             btn.onclick = () => showOpenModal(ep.url);
             episodesDiv.appendChild(btn);
           });
@@ -256,14 +274,27 @@
 
           header.addEventListener("click", () => {
             const isOpen = seasonDiv.classList.contains("open");
-            document.querySelectorAll('.season.open').forEach(open => {
-              open.classList.remove("open");
-              open.querySelector(".episodes").style.maxHeight = "0px";
+
+            document.querySelectorAll('.season.open').forEach(openSeason => {
+              if (openSeason !== seasonDiv) {
+                const episodes = openSeason.querySelector(".episodes");
+                episodes.style.maxHeight = episodes.scrollHeight + "px";
+                requestAnimationFrame(() => {
+                  episodes.style.maxHeight = "0px";
+                  openSeason.classList.remove("open");
+                });
+              }
             });
+
             if (!isOpen) {
               seasonDiv.classList.add("open");
-              const epDiv = seasonDiv.querySelector(".episodes");
-              epDiv.style.maxHeight = epDiv.scrollHeight + "px";
+              const episodes = seasonDiv.querySelector(".episodes");
+              const scrollHeight = episodes.scrollHeight;
+              episodes.style.maxHeight = scrollHeight + "px";
+            } else {
+              const episodes = seasonDiv.querySelector(".episodes");
+              episodes.style.maxHeight = "0px";
+              seasonDiv.classList.remove("open");
             }
           });
         });
@@ -277,19 +308,8 @@
       const modal = document.getElementById('modal');
       const openBtn = document.getElementById('modal-open');
       openBtn.href = url;
-
-      const lastShown = localStorage.getItem("modal_last_shown");
-      const now = Date.now();
-      if (!lastShown || now - lastShown > 6 * 60 * 60 * 1000) { // раз в 6 часов
-        modal.classList.add('active');
-        localStorage.setItem("modal_last_shown", now);
-      } else {
-        window.open(url, "_blank");
-      }
-
-      modal.onclick = (e) => {
-        if (e.target === modal) modal.classList.remove('active');
-      };
+      modal.classList.add('active');
+      modal.onclick = (e) => { if (e.target === modal) modal.classList.remove('active'); };
     }
 
     document.addEventListener('DOMContentLoaded', loadAnime);
