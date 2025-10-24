@@ -3,45 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Видео</title>
+<title>Видео OK.ru</title>
 <style>
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-  background: #000;
-  display: flex;
-  flex-direction: column;
-}
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+  }
 
-#video-container {
-  position: relative;
-  flex: 1;
-}
+  /* Контейнер для iframe */
+  #video-container {
+    flex: 1;
+    position: relative;
+  }
 
-iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-}
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
 
-#open-browser-btn {
-  width: 100%;
-  padding: 12px;
-  background: #ff6600;
-  color: #fff;
-  font-size: 18px;
-  font-weight: bold;
-  text-align: center;
-  text-decoration: none;
-  cursor: pointer;
-  border: none;
-}
+  /* Кнопка открыть в браузере */
+  #open-browser-btn {
+    width: 100%;
+    padding: 12px;
+    background: #ff6600;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+  }
+
+  #open-browser-btn:hover {
+    background: #e65c00;
+  }
 </style>
 </head>
 <body>
@@ -55,7 +60,7 @@ iframe {
   </iframe>
 </div>
 
-<button id="open-browser-btn" onclick="openInBrowser()">Открыть в браузере</button>
+<button id="open-browser-btn" onclick="openInBrowser()">Смотреть в браузере (Fullscreen)</button>
 
 <script>
 function openInBrowser() {
