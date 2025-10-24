@@ -124,9 +124,23 @@ body{
 .modal h3{font-size:1.5rem;margin-bottom:15px;}
 .modal p{color:var(--text-secondary);margin-bottom:25px;line-height:1.6;}
 .modal-actions{display:flex;gap:12px;justify-content:center;}
-.btn{padding:12px 24px;border-radius:8px;font-weight:600;cursor:pointer;transition:var(--transition);border:none;font-size:0.95rem;display:flex;align-items:center;gap:8px;}
-.btn-primary{background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:white;}
+.btn{padding:12px 24px;border-radius:8px;font-weight:600;cursor:pointer;transition:var(--transition);border:none;font-size:0.95rem;display:flex;align-items:center;gap:8px;text-decoration:none;}
+.btn-primary{background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:white;text-decoration:none;}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(124,58,237,0.4);}
+
+/* close button for modal */
+.modal-close{
+  position:absolute;
+  top:10px;
+  right:12px;
+  font-size:1.2rem;
+  color:var(--text-secondary);
+  background:transparent;
+  border:none;
+  cursor:pointer;
+  transition:color 0.2s;
+}
+.modal-close:hover{color:var(--accent-primary);}
 
 footer{text-align:center;padding:40px 0 20px;color:var(--text-muted);font-size:0.9rem;margin-top:40px;border-top:1px solid rgba(255,255,255,0.05);}
 .heart{color:#ef4444;animation:pulse 1.5s infinite;}
@@ -152,6 +166,7 @@ footer{text-align:center;padding:40px 0 20px;color:var(--text-muted);font-size:0
 
 <div id="modal" class="modal" aria-hidden="true">
 <div class="modal-content" role="dialog" aria-modal="true" aria-label="Информация о поддержке">
+<button class="modal-close" aria-label="Закрыть модальное окно"><i class="fas fa-times"></i></button>
 <div class="modal-icon"><i class="fas fa-mug-hot"></i></div>
 <h3>Спасибо, что с нами!</h3>
 <p>Наш сервис полностью бесплатен 💜  
@@ -195,7 +210,6 @@ try{
       const btnSeason=parseInt(btn.dataset.season,10);
       const btnEp=parseInt(btn.dataset.ep,10);
       if(lastWatched && btnSeason===Number(lastWatched.season) && btnEp===Number(lastWatched.episode)) btn.classList.add("last-watched");
-      // подсвет следующей серии
       if(lastWatched && btnSeason===Number(lastWatched.season) && btnEp===Number(lastWatched.episode)+1) btn.classList.add("next-watch");
     });
   }
@@ -274,6 +288,10 @@ const openBtn=document.getElementById("modal-open");
 openBtn.href=url;
 modal.classList.add("active");
 modal.setAttribute("aria-hidden","false");
+
+const closeBtn=modal.querySelector(".modal-close");
+closeBtn.onclick=()=>{modal.classList.remove("active");modal.setAttribute("aria-hidden","true");};
+
 modal.onclick=(e)=>{if(e.target===modal){modal.classList.remove("active");modal.setAttribute("aria-hidden","true");}};
 }
 
