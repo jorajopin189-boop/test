@@ -48,33 +48,43 @@ body{
 .season-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:rgba(124,58,237,0.12);border-radius:8px;color:var(--accent-primary);}
 .toggle-icon{transition:var(--transition);color:var(--text-secondary);font-size:1.2rem;}
 .season.open .toggle-icon{transform:rotate(180deg);color:var(--accent-primary);}
-.episodes-wrapper{overflow:hidden;max-height:0;transition:max-height 0.5s cubic-bezier(0.4,0,0.2,1);}
-.episodes{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:12px;padding:20px 24px 24px;}
+
+/* wrapper controls max-height transition; content inside has padding */
+.episodes-wrapper{overflow:hidden;max-height:0;transition:max-height 0.45s cubic-bezier(0.4,0,0.2,1);}
+.episodes{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:20px 24px 24px;} /* ровно 4 в строке */
+
 .episode-btn{padding:14px 8px;border:none;border-radius:10px;background:var(--bg-tertiary);color:var(--text-primary);font-weight:600;cursor:pointer;text-align:center;transition:var(--transition);display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;overflow:hidden;}
 .episode-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);transition:left 0.7s;}
 .episode-btn:hover{background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));transform:translateY(-3px);box-shadow:0 5px 15px rgba(124,58,237,0.35);}
 .episode-btn:hover::before{left:100%;}
 .modal{
-  position:fixed;
-  top:0;left:0;width:100%;height:100%;
+  position:fixed;top:0;left:0;width:100%;height:100%;
   display:flex;justify-content:center;align-items:center;
   z-index:1000;
   opacity:0;visibility:hidden;
-  transition:opacity 0.4s ease,visibility 0.4s ease;
+  transition:opacity 0.35s ease,visibility 0.35s ease;
+  pointer-events:none;
 }
+/* pseudo-layer that provides dim + blur; we animate its opacity to avoid jump */
 .modal::before{
   content:"";
-  position:absolute;
-  top:0;left:0;width:100%;height:100%;
+  position:absolute;inset:0;
   background:rgba(0,0,0,0.65);
   backdrop-filter:blur(10px);
   -webkit-backdrop-filter:blur(10px);
+  opacity:0;
+  transition:opacity 0.35s ease, backdrop-filter 0.35s ease;
   z-index:1;
 }
-.modal.active{opacity:1;visibility:visible;}
+.modal.active{
+  opacity:1;visibility:visible;pointer-events:auto;
+}
+.modal.active::before{
+  opacity:1;
+}
+
 .modal-content{
-  position:relative; /* above pseudo-layer */
-  z-index:2;
+  position:relative;z-index:2;
   background:rgba(24,24,27,0.97);
   border-radius:var(--border-radius);
   padding:30px;
@@ -82,7 +92,7 @@ body{
   text-align:center;
   box-shadow:var(--shadow);
   border:1px solid rgba(255,255,255,0.07);
-  transform:scale(0.9);transition:transform 0.4s ease;
+  transform:scale(0.96);transition:transform 0.32s cubic-bezier(0.2,0,0,1);
 }
 .modal.active .modal-content{transform:scale(1);}
 .modal-icon{font-size:3rem;color:var(--accent-primary);margin-bottom:20px;}
@@ -92,11 +102,21 @@ body{
 .btn{padding:12px 24px;border-radius:8px;font-weight:600;cursor:pointer;transition:var(--transition);border:none;font-size:0.95rem;display:flex;align-items:center;gap:8px;}
 .btn-primary{background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:white;}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(124,58,237,0.4);}
+
 footer{text-align:center;padding:40px 0 20px;color:var(--text-muted);font-size:0.9rem;margin-top:40px;border-top:1px solid rgba(255,255,255,0.05);}
 .heart{color:#ef4444;animation:pulse 1.5s infinite;}
 @keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
-@media(max-width:768px){.header h1{font-size:2rem}.season-header{padding:16px 20px}.episodes{grid-template-columns:repeat(auto-fill,minmax(60px,1fr));padding:20px 20px 20px}.modal-content{padding:22px}}
-@media(max-width:480px){body{padding:15px}.header h1{font-size:1.7rem}.episodes{grid-template-columns:repeat(auto-fill,minmax(50px,1fr))}.episode-btn{padding:12px 6px}}
+
+@media (max-width:900px){
+  .episodes{grid-template-columns:repeat(3,1fr);}
+}
+@media (max-width:640px){
+  .episodes{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width:420px){
+  .episodes{grid-template-columns:repeat(1,1fr);}
+  .header h1{font-size:1.6rem;}
+}
 </style>
 </head>
 <body>
@@ -166,7 +186,6 @@ async function loadAnime(){
       season.episodes.forEach(ep=>{
         const btn = document.createElement("button");
         btn.className = "episode-btn";
-        // duration may be absent — show only number if so
         btn.innerHTML = `<span class='episode-number'>${ep.number}</span>${ep.duration ? `<span class='episode-duration'>${ep.duration}</span>` : ""}`;
         btn.onclick = ()=> showOpenModal(ep.url);
         episodesDiv.append(btn);
@@ -179,11 +198,10 @@ async function loadAnime(){
       header.addEventListener("click", ()=>{
         const isOpen = seasonDiv.classList.contains("open");
 
-        // close other seasons
+        // close other seasons smoothly
         document.querySelectorAll(".season.open").forEach(open=>{
           if(open !== seasonDiv){
             const w = open.querySelector(".episodes-wrapper");
-            // ensure current maxHeight is explicit to allow transition
             w.style.maxHeight = w.scrollHeight + "px";
             requestAnimationFrame(()=>{ w.style.maxHeight = "0px"; open.classList.remove("open"); });
           }
@@ -191,17 +209,15 @@ async function loadAnime(){
 
         const w = seasonDiv.querySelector(".episodes-wrapper");
         if(isOpen){
-          // close this season
+          // close this
           w.style.maxHeight = w.scrollHeight + "px";
           requestAnimationFrame(()=>{ w.style.maxHeight = "0px"; seasonDiv.classList.remove("open"); });
         } else {
-          // open this season
+          // open this
           seasonDiv.classList.add("open");
-          // set to current scrollHeight to animate
-          const target = w.scrollHeight;
-          // explicitly set 0 first to ensure transition from 0 -> target when content was previously closed
+          // ensure transition from 0 -> scrollHeight
           w.style.maxHeight = "0px";
-          requestAnimationFrame(()=>{ w.style.maxHeight = target + "px"; });
+          requestAnimationFrame(()=>{ w.style.maxHeight = w.scrollHeight + "px"; });
         }
       });
     });
@@ -223,10 +239,10 @@ function showOpenModal(url){
   if(openCount % 5 === 0){
     modal.classList.add("active");
     modal.setAttribute("aria-hidden","false");
-    // закрытие по клику на фоновую область (псевдо-layer не принимает события, слушаем сам modal)
+    // close on click outside (modal element)
     modal.onclick = (e)=>{ if(e.target === modal){ modal.classList.remove("active"); modal.setAttribute("aria-hidden","true"); } };
   } else {
-    // прямое открытие в новой вкладке/браузере
+    // открываем сразу
     window.open(url, "_blank");
   }
 }
@@ -235,3 +251,5 @@ document.addEventListener("DOMContentLoaded", loadAnime);
 </script>
 </body>
 </html>
+
+
