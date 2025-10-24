@@ -35,7 +35,6 @@
     }
 
     .container { max-width: 1200px; margin: 0 auto; }
-
     .header { text-align: center; margin-bottom: 40px; position: relative; }
     .header h1 {
       font-size: 2.5rem; font-weight: 700;
@@ -197,7 +196,7 @@
         document.getElementById("anime-title").textContent = animeData.title;
         const container = document.getElementById("seasons-container");
 
-        animeData.seasons.forEach((season, index) => {
+        animeData.seasons.forEach((season) => {
           const seasonDiv = document.createElement("div");
           seasonDiv.className = "season";
 
@@ -222,6 +221,7 @@
 
           const episodesDiv = document.createElement("div");
           episodesDiv.className = "episodes";
+          episodesDiv.style.maxHeight = "0px"; // изначально закрыто
 
           season.episodes.forEach(ep => {
             const btn = document.createElement("button");
@@ -244,7 +244,7 @@
           header.addEventListener("click", () => {
             const isOpen = seasonDiv.classList.contains("open");
 
-            // Сворачиваем все открытые сезоны
+            // Закрываем все открытые сезоны
             document.querySelectorAll('.season.open').forEach(openSeason => {
               const episodes = openSeason.querySelector(".episodes");
               episodes.style.maxHeight = episodes.scrollHeight + "px";
@@ -258,7 +258,9 @@
               seasonDiv.classList.add("open");
               const episodes = seasonDiv.querySelector(".episodes");
               const scrollHeight = episodes.scrollHeight;
-              episodes.style.maxHeight = scrollHeight + "px";
+              requestAnimationFrame(() => {
+                episodes.style.maxHeight = scrollHeight + "px";
+              });
             }
           });
         });
