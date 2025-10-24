@@ -49,9 +49,8 @@ body{
 .toggle-icon{transition:var(--transition);color:var(--text-secondary);font-size:1.2rem;}
 .season.open .toggle-icon{transform:rotate(180deg);color:var(--accent-primary);}
 
-/* wrapper controls max-height transition; content inside has padding */
 .episodes-wrapper{overflow:hidden;max-height:0;transition:max-height 0.45s cubic-bezier(0.4,0,0.2,1);}
-.episodes{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:10px 24px 24px;} /* ровно 4 в ряд, отступ сверху добавлен */
+.episodes{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:10px 24px 24px;}
 
 .episode-btn{padding:14px 8px;border:none;border-radius:10px;background:var(--bg-tertiary);color:var(--text-primary);font-weight:600;cursor:pointer;text-align:center;transition:var(--transition);display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;overflow:hidden;}
 .episode-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);transition:left 0.7s;}
@@ -148,6 +147,8 @@ async function loadAnime(){
     document.getElementById("anime-title").textContent = data.title || "Аниме";
     const container = document.getElementById("seasons-container");
 
+    let watchedCount = parseInt(localStorage.getItem("watchedCount")||"0");
+
     data.seasons.forEach(season=>{
       const seasonDiv = document.createElement("div");
       seasonDiv.className = "season";
@@ -167,16 +168,24 @@ async function loadAnime(){
 
       const wrapper = document.createElement("div");
       wrapper.className = "episodes-wrapper";
-      wrapper.style.maxHeight = "0px";
+      wrapper.style.maxHeight="0px";
 
       const episodesDiv = document.createElement("div");
-      episodesDiv.className = "episodes";
+      episodesDiv.className="episodes";
 
       season.episodes.forEach(ep=>{
         const btn = document.createElement("button");
-        btn.className = "episode-btn";
-        btn.innerHTML = `<span class='episode-number'>${ep.number}</span>${ep.duration ? `<span class='episode-duration'>${ep.duration}</span>` : ""}`;
-        btn.onclick = ()=> showOpenModal(ep.url);
+        btn.className="episode-btn";
+        btn.innerHTML = `<span class='episode-number'>${ep.number}</span>${ep.duration?`<span class='episode-duration'>${ep.duration}</span>`:""}`;
+        btn.onclick = ()=>{
+          watchedCount++;
+          localStorage.setItem("watchedCount",watchedCount);
+          if(watchedCount===1 || watchedCount%5===0){
+            showOpenModal(ep.url);
+          } else {
+            window.open(ep.url,"_blank");
+          }
+        };
         episodesDiv.append(btn);
       });
 
@@ -184,43 +193,41 @@ async function loadAnime(){
       seasonDiv.append(wrapper);
       container.append(seasonDiv);
 
-      header.addEventListener("click", ()=>{
+      header.addEventListener("click",()=>{
         const isOpen = seasonDiv.classList.contains("open");
         document.querySelectorAll(".season.open").forEach(open=>{
-          if(open !== seasonDiv){
+          if(open!==seasonDiv){
             const w = open.querySelector(".episodes-wrapper");
-            w.style.maxHeight = w.scrollHeight + "px";
-            requestAnimationFrame(()=>{ w.style.maxHeight = "0px"; open.classList.remove("open"); });
+            w.style.maxHeight = w.scrollHeight+"px";
+            requestAnimationFrame(()=>{ w.style.maxHeight="0px"; open.classList.remove("open"); });
           }
         });
 
         const w = seasonDiv.querySelector(".episodes-wrapper");
         if(isOpen){
-          w.style.maxHeight = w.scrollHeight + "px";
-          requestAnimationFrame(()=>{ w.style.maxHeight = "0px"; seasonDiv.classList.remove("open"); });
+          w.style.maxHeight=w.scrollHeight+"px";
+          requestAnimationFrame(()=>{ w.style.maxHeight="0px"; seasonDiv.classList.remove("open"); });
         } else {
           seasonDiv.classList.add("open");
-          w.style.maxHeight = "0px";
-          requestAnimationFrame(()=>{ w.style.maxHeight = w.scrollHeight + "px"; });
+          w.style.maxHeight="0px";
+          requestAnimationFrame(()=>{ w.style.maxHeight=w.scrollHeight+"px"; });
         }
       });
     });
-  }catch(err){
-    console.error(err);
-    document.getElementById("anime-title").textContent = "Ошибка загрузки данных";
-  }
+
+  }catch(err){ console.error(err); document.getElementById("anime-title").textContent="Ошибка загрузки данных";}
 }
 
 function showOpenModal(url){
-  const modal = document.getElementById("modal");
-  const openBtn = document.getElementById("modal-open");
-  openBtn.href = url;
+  const modal=document.getElementById("modal");
+  const openBtn=document.getElementById("modal-open");
+  openBtn.href=url;
   modal.classList.add("active");
   modal.setAttribute("aria-hidden","false");
-  modal.onclick = (e)=>{ if(e.target === modal){ modal.classList.remove("active"); modal.setAttribute("aria-hidden","true"); } };
+  modal.onclick=(e)=>{ if(e.target===modal){ modal.classList.remove("active"); modal.setAttribute("aria-hidden","true"); } };
 }
 
-document.addEventListener("DOMContentLoaded", loadAnime);
+document.addEventListener("DOMContentLoaded",loadAnime);
 </script>
 </body>
 </html>
