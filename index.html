@@ -35,6 +35,7 @@
     }
 
     .container { max-width: 1200px; margin: 0 auto; }
+
     .header { text-align: center; margin-bottom: 40px; position: relative; }
     .header h1 {
       font-size: 2.5rem; font-weight: 700;
@@ -84,11 +85,12 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
       gap: 12px;
-      padding: 0 24px;
+      padding: 12px 24px 0; /* добавили отступ сверху для первой строки серий */
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1), padding 0.3s ease;
+      transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1), padding-bottom 0.3s ease;
     }
+
     .season.open .episodes { padding-bottom: 24px; }
 
     .episode-btn {
@@ -145,7 +147,7 @@
     .heart { color:#ef4444; display:inline-block; animation:pulse 1.5s infinite; }
     @keyframes pulse {0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
 
-    @media(max-width:768px){.header h1{font-size:2rem}.season-header{padding:16px 20px}.episodes{grid-template-columns:repeat(auto-fill,minmax(60px,1fr));padding:0 20px 20px}.season.open .episodes{padding:0 20px 20px}.modal-actions{flex-direction:column}}
+    @media(max-width:768px){.header h1{font-size:2rem}.season-header{padding:16px 20px}.episodes{grid-template-columns:repeat(auto-fill,minmax(60px,1fr));padding:12px 20px 20px}.season.open .episodes{padding-bottom:20px}.modal-actions{flex-direction:column}}
     @media(max-width:480px){body{padding:15px}.header h1{font-size:1.7rem}.episodes{grid-template-columns:repeat(auto-fill,minmax(50px,1fr))}.episode-btn{padding:12px 6px}}
   </style>
 </head>
@@ -196,7 +198,7 @@
         document.getElementById("anime-title").textContent = animeData.title;
         const container = document.getElementById("seasons-container");
 
-        animeData.seasons.forEach((season) => {
+        animeData.seasons.forEach((season, index) => {
           const seasonDiv = document.createElement("div");
           seasonDiv.className = "season";
 
@@ -221,7 +223,6 @@
 
           const episodesDiv = document.createElement("div");
           episodesDiv.className = "episodes";
-          episodesDiv.style.maxHeight = "0px"; // изначально закрыто
 
           season.episodes.forEach(ep => {
             const btn = document.createElement("button");
@@ -244,22 +245,23 @@
           header.addEventListener("click", () => {
             const isOpen = seasonDiv.classList.contains("open");
 
-            // Закрываем все открытые сезоны
             document.querySelectorAll('.season.open').forEach(openSeason => {
-              const episodes = openSeason.querySelector(".episodes");
-              episodes.style.maxHeight = episodes.scrollHeight + "px";
-              requestAnimationFrame(() => {
-                episodes.style.maxHeight = "0px";
-                openSeason.classList.remove("open");
-              });
+              if (openSeason !== seasonDiv) {
+                const eps = openSeason.querySelector(".episodes");
+                eps.style.maxHeight = eps.scrollHeight + "px";
+                requestAnimationFrame(() => {
+                  eps.style.maxHeight = "0px";
+                  openSeason.classList.remove("open");
+                });
+              }
             });
 
             if (!isOpen) {
               seasonDiv.classList.add("open");
-              const episodes = seasonDiv.querySelector(".episodes");
-              const scrollHeight = episodes.scrollHeight;
+              const eps = seasonDiv.querySelector(".episodes");
+              const scrollHeight = eps.scrollHeight;
               requestAnimationFrame(() => {
-                episodes.style.maxHeight = scrollHeight + "px";
+                eps.style.maxHeight = scrollHeight + "px";
               });
             }
           });
