@@ -5,31 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Аниме Навигатор</title>
 <style>
+  /* Тёмная тема */
   body {
-    margin:0; padding:0;
+    margin: 0;
+    padding: 0;
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    background: #f2f2f2;
-    color: #333;
+    background: #121212;
+    color: #e0e0e0;
   }
 
   h1 {
-    text-align:center;
-    margin:20px 0;
-    font-weight:400;
-    color:#444;
+    text-align: center;
+    margin: 20px 0;
+    font-weight: 400;
+    color: #f5f5f5;
   }
 
   .season {
     margin: 10px 20px;
     border-radius: 10px;
-    background: #ffffff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background: #1e1e1e;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
     overflow: hidden;
   }
 
   .season-header {
     padding: 12px 16px;
-    background: #e0e0e0;
+    background: #2a2a2a;
     cursor: pointer;
     user-select: none;
     display: flex;
@@ -39,21 +41,26 @@
   }
 
   .season-header:hover {
-    background: #d5d5d5;
+    background: #3a3a3a;
   }
 
   .season-header h2 {
-    margin:0;
+    margin: 0;
     font-size: 18px;
-    font-weight:500;
+    font-weight: 500;
+  }
+
+  .toggle-icon {
+    transition: transform 0.2s;
+    font-size: 16px;
   }
 
   .episodes {
     display: none;
     flex-wrap: wrap;
     padding: 10px;
-    gap: 6px;
-    background: #fafafa;
+    gap: 8px;
+    background: #1b1b1b;
   }
 
   .episode-btn {
@@ -62,28 +69,23 @@
     border: none;
     border-radius: 6px;
     background: #90caf9;
-    color: #fff;
+    color: #121212;
     font-weight: 500;
     cursor: pointer;
-    text-align: center;
     transition: background 0.2s;
+    text-align: center;
   }
 
   .episode-btn:hover {
     background: #64b5f6;
   }
 
-  .toggle-icon {
-    transition: transform 0.2s;
-    font-size: 16px;
-  }
-
-  /* Модальное окно для открытия во внешнем браузере */
+  /* Модальное окно */
   #manual-fallback {
     position: fixed;
     left:0; top:0;
     width:100%; height:100%;
-    background: rgba(0,0,0,0.75);
+    background: rgba(0,0,0,0.85);
     display:flex;
     justify-content:center;
     align-items:center;
@@ -93,17 +95,17 @@
 
   #manual-fallback div {
     max-width: 90%;
-    background:#fff;
+    background:#1e1e1e;
     padding:20px;
-    border-radius:10px;
+    border-radius:12px;
     text-align:center;
-    color:#333;
+    color:#e0e0e0;
   }
 
   #manual-fallback a, #manual-fallback button {
     margin:5px;
     padding:10px 14px;
-    border-radius:6px;
+    border-radius:8px;
     text-decoration:none;
     border:none;
     font-weight:500;
@@ -112,12 +114,12 @@
 
   #manual-fallback a {
     background:#42a5f5;
-    color:#fff;
+    color:#121212;
   }
 
   #manual-fallback button {
-    background:#e0e0e0;
-    color:#333;
+    background:#333333;
+    color:#e0e0e0;
   }
 </style>
 </head>
@@ -165,7 +167,7 @@ async function loadAnime() {
       const btn = document.createElement("button");
       btn.className = "episode-btn";
       btn.textContent = ep.number;
-      btn.onclick = () => openInBrowser(ep.url);
+      btn.onclick = () => showOpenModal(ep.url);
       episodesDiv.appendChild(btn);
     });
 
@@ -180,32 +182,15 @@ async function loadAnime() {
   });
 }
 
-// Функция открытия во внешнем браузере
-async function openInBrowser(url) {
-  try {
-    if(window.Telegram && Telegram.WebApp && Telegram.WebApp.openLink){
-      Telegram.WebApp.openLink(url);
-      return;
-    }
-  } catch(e){}
-
-  try{
-    const win = window.open(url, "_blank", "noopener,noreferrer");
-    if(win) return;
-  } catch(e){}
-
-  showManualFallback(url);
-}
-
-// Модальное окно для случаев, когда нельзя открыть автоматически
-function showManualFallback(url){
+// Показываем модальное окно с кнопкой для открытия видео во внешнем браузере
+function showOpenModal(url) {
   if(document.getElementById('manual-fallback')) return;
 
   const modal = document.createElement('div');
   modal.id = 'manual-fallback';
   modal.innerHTML = `
     <div>
-      <p>Чтобы включить полноэкранный режим — откройте видео в системном браузере</p>
+      <p>Для полноэкранного воспроизведения откройте видео в системном браузере</p>
       <a id="mf-open" target="_blank" rel="noopener noreferrer">Открыть в браузере</a>
       <button id="mf-close">Закрыть</button>
     </div>
@@ -220,6 +205,4 @@ loadAnime();
 
 </body>
 </html>
-
-
 
