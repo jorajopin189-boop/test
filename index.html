@@ -131,16 +131,19 @@ body{
 /* close button for modal */
 .modal-close{
   position:absolute;
-  top:10px;
-  right:12px;
-  font-size:1.2rem;
+  top:8px;
+  right:8px;
+  font-size:1rem;
   color:var(--text-secondary);
   background:transparent;
   border:none;
   cursor:pointer;
-  transition:color 0.2s;
+  transition:all 0.2s;
 }
-.modal-close:hover{color:var(--accent-primary);}
+.modal-close:hover{
+  color:var(--accent-primary);
+  transform:scale(1.2);
+}
 
 footer{text-align:center;padding:40px 0 20px;color:var(--text-muted);font-size:0.9rem;margin-top:40px;border-top:1px solid rgba(255,255,255,0.05);}
 .heart{color:#ef4444;animation:pulse 1.5s infinite;}
