@@ -78,10 +78,10 @@ footer{text-align:center;padding:40px 0 20px;color:var(--text-muted);font-size:0
     <h3>Спасибо, что с нами!</h3>
     <p>Наш сервис полностью бесплатен 💜  
     Иногда вы можете увидеть рекламу — она помогает нам оставаться онлайн.  
-    Если хотите поддержать проект, можете сделать донат звёздами на главной странице нашего бота или просто рассказать о нас друзьям 💫</p>
+    Просто нажмите кнопку ниже, чтобы продолжить просмотр!</p>
     <div class="modal-actions">
       <a id="modal-open" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-        <i class="fas fa-star"></i> Поддержать проект
+        <i class="fas fa-play"></i> Продолжить просмотр
       </a>
     </div>
   </div>
@@ -128,7 +128,7 @@ async function loadAnime() {
         const btn = document.createElement("button");
         btn.className = "episode-btn";
         btn.innerHTML = `<span class='episode-number'>${ep.number}</span>
-                         <span class='episode-duration'>${ep.duration}</span>`;
+                         ${ep.duration ? `<span class='episode-duration'>${ep.duration}</span>` : ""}`;
         btn.onclick = () => showOpenModal(ep.url);
         episodesDiv.append(btn);
       });
@@ -179,6 +179,3 @@ document.addEventListener("DOMContentLoaded", loadAnime);
 </script>
 </body>
 </html>
-
-
-
