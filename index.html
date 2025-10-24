@@ -46,7 +46,7 @@ body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;backgroun
 .episode-duration{font-size:0.75rem;color:var(--text-secondary);opacity:0.8;}
 .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;justify-content:center;align-items:center;z-index:1000;opacity:0;visibility:hidden;transition:var(--transition);backdrop-filter:blur(5px);}
 .modal.active{opacity:1;visibility:visible;}
-.modal-content{background:var(--bg-secondary);border-radius:var(--border-radius);padding:30px;max-width:500px;width:90%;text-align:center;box-shadow:var(--shadow);transform:translateY(20px);transition:var(--transition);border:1px solid rgba(255,255,255,0.05);}
+.modal-content{background:var(--bg-secondary);border-radius:var(--border-radius);padding:30px;max-width:480px;width:90%;text-align:center;box-shadow:var(--shadow);transform:translateY(20px);transition:var(--transition);border:1px solid rgba(255,255,255,0.05);}
 .modal.active .modal-content{transform:translateY(0);}
 .modal-icon{font-size:3rem;color:var(--accent-primary);margin-bottom:20px;}
 .modal h3{font-size:1.5rem;margin-bottom:15px;color:var(--text-primary);}
@@ -55,37 +55,34 @@ body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;backgroun
 .btn{padding:12px 24px;border-radius:8px;font-weight:600;cursor:pointer;transition:var(--transition);border:none;font-size:0.95rem;display:flex;align-items:center;gap:8px;}
 .btn-primary{background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:white;}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(124,58,237,0.4);}
-.btn-secondary{background:var(--bg-tertiary);color:var(--text-primary);}
-.btn-secondary:hover{background:rgba(255,255,255,0.1);}
 footer{text-align:center;padding:40px 0 20px;color:var(--text-muted);font-size:0.9rem;margin-top:40px;border-top:1px solid rgba(255,255,255,0.05);}
 .heart{color:#ef4444;display:inline-block;animation:pulse 1.5s infinite;}
 @keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
-@media(max-width:768px){.header h1{font-size:2rem}.season-header{padding:16px 20px}.episodes{grid-template-columns:repeat(auto-fill,minmax(60px,1fr));padding:12px 20px 20px}.modal-actions{flex-direction:column}}
-@media(max-width:480px){body{padding:15px}.header h1{font-size:1.7rem}.episodes{grid-template-columns:repeat(auto-fill,minmax(50px,1fr))}.episode-btn{padding:12px 6px}}
 </style>
 </head>
 <body>
 <div class="container">
   <header class="header">
     <h1 id="anime-title">Аниме Навигатор</h1>
-    <p>Откройте для себя мир аниме с нами.</p>
+    <p>Откройте для себя мир аниме в стильном минималистичном интерфейсе</p>
   </header>
+
   <div id="seasons-container" class="seasons-container"></div>
+
   <footer>С любовью, ваш <span class="heart">❤️</span> Кинолист</footer>
 </div>
 
 <div id="modal" class="modal">
   <div class="modal-content">
-    <div class="modal-icon"><i class="fas fa-external-link-alt"></i></div>
-    <h3>Открыть в браузере</h3>
-    <p>Для полноэкранного воспроизведения откройте видео в системном браузере</p>
+    <div class="modal-icon"><i class="fas fa-heart"></i></div>
+    <h3>Спасибо, что с нами!</h3>
+    <p>Наш сервис полностью бесплатен 💜  
+    Иногда вы можете увидеть рекламу — она помогает нам оставаться онлайн.  
+    Если хотите поддержать проект, можете сделать донат звёздами на главной странице нашего бота или просто рассказать о нас друзьям 💫</p>
     <div class="modal-actions">
       <a id="modal-open" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-        <i class="fas fa-external-link-alt"></i> Открыть
+        <i class="fas fa-star"></i> Поддержать проект
       </a>
-      <button id="modal-close" class="btn btn-secondary">
-        <i class="fas fa-times"></i> Закрыть
-      </button>
     </div>
   </div>
 </div>
@@ -94,81 +91,94 @@ footer{text-align:center;padding:40px 0 20px;color:var(--text-muted);font-size:0
 async function loadAnime() {
   const params = new URLSearchParams(window.location.search);
   const animeId = params.get("anime");
-  if (!animeId) { document.getElementById("anime-title").textContent="Аниме не выбрано"; return; }
+  if (!animeId) return;
 
   try {
     const response = await fetch(`data/${animeId}.json`);
-    if(!response.ok) throw new Error("Не удалось загрузить JSON");
     const animeData = await response.json();
     document.getElementById("anime-title").textContent = animeData.title;
     const container = document.getElementById("seasons-container");
 
-    animeData.seasons.forEach(season=>{
-      const seasonDiv = document.createElement("div"); seasonDiv.className="season";
-      const header = document.createElement("div"); header.className="season-header";
+    animeData.seasons.forEach(season => {
+      const seasonDiv = document.createElement("div");
+      seasonDiv.className = "season";
+      const header = document.createElement("div");
+      header.className = "season-header";
 
       const title = document.createElement("h2");
-      const icon = document.createElement("div"); icon.className="season-icon"; icon.innerHTML=`<i class="fas fa-play"></i>`;
-      const titleText = document.createElement("span"); titleText.textContent=season.name;
-      title.appendChild(icon); title.appendChild(titleText);
+      const icon = document.createElement("div");
+      icon.className = "season-icon";
+      icon.innerHTML = `<i class="fas fa-play"></i>`;
+      const titleText = document.createElement("span");
+      titleText.textContent = season.name;
+      title.append(icon, titleText);
 
-      const toggleIcon = document.createElement("span"); toggleIcon.className="toggle-icon"; toggleIcon.innerHTML=`<i class="fas fa-chevron-down"></i>`;
-      header.appendChild(title); header.appendChild(toggleIcon);
-      seasonDiv.appendChild(header);
+      const toggleIcon = document.createElement("span");
+      toggleIcon.className = "toggle-icon";
+      toggleIcon.innerHTML = `<i class="fas fa-chevron-down"></i>`;
+      header.append(title, toggleIcon);
+      seasonDiv.append(header);
 
-      const episodesWrapper = document.createElement("div"); episodesWrapper.className="episodes-wrapper";
-      const episodesDiv = document.createElement("div"); episodesDiv.className="episodes";
+      const wrapper = document.createElement("div");
+      wrapper.className = "episodes-wrapper";
+      const episodesDiv = document.createElement("div");
+      episodesDiv.className = "episodes";
 
-      season.episodes.forEach(ep=>{
-        const btn = document.createElement("button"); btn.className="episode-btn";
-        const numberSpan = document.createElement("span"); numberSpan.className="episode-number"; numberSpan.textContent=ep.number;
-        const durationSpan = document.createElement("span"); durationSpan.className="episode-duration"; durationSpan.textContent=ep.duration;
-        btn.appendChild(numberSpan); btn.appendChild(durationSpan);
-        btn.onclick=()=>showOpenModal(ep.url);
-        episodesDiv.appendChild(btn);
+      season.episodes.forEach(ep => {
+        const btn = document.createElement("button");
+        btn.className = "episode-btn";
+        btn.innerHTML = `<span class='episode-number'>${ep.number}</span>
+                         <span class='episode-duration'>${ep.duration}</span>`;
+        btn.onclick = () => showOpenModal(ep.url);
+        episodesDiv.append(btn);
       });
 
-      episodesWrapper.appendChild(episodesDiv);
-      seasonDiv.appendChild(episodesWrapper);
-      container.appendChild(seasonDiv);
+      wrapper.append(episodesDiv);
+      seasonDiv.append(wrapper);
+      container.append(seasonDiv);
 
-      header.addEventListener("click",()=>{
+      header.addEventListener("click", () => {
         const isOpen = seasonDiv.classList.contains("open");
-        document.querySelectorAll('.season.open').forEach(s=>{
-          if(s!==seasonDiv){
-            const w = s.querySelector(".episodes-wrapper");
-            w.style.maxHeight=w.scrollHeight+"px";
-            requestAnimationFrame(()=>{ w.style.maxHeight="0px"; s.classList.remove("open"); });
+        document.querySelectorAll(".season.open").forEach(open => {
+          if (open !== seasonDiv) {
+            const w = open.querySelector(".episodes-wrapper");
+            w.style.maxHeight = w.scrollHeight + "px";
+            requestAnimationFrame(() => {
+              w.style.maxHeight = "0px";
+              open.classList.remove("open");
+            });
           }
         });
-
-        if(isOpen){
-          const w = seasonDiv.querySelector(".episodes-wrapper");
-          w.style.maxHeight=w.scrollHeight+"px";
-          requestAnimationFrame(()=>{ w.style.maxHeight="0px"; seasonDiv.classList.remove("open"); });
+        const w = seasonDiv.querySelector(".episodes-wrapper");
+        if (isOpen) {
+          w.style.maxHeight = w.scrollHeight + "px";
+          requestAnimationFrame(() => {
+            w.style.maxHeight = "0px";
+            seasonDiv.classList.remove("open");
+          });
         } else {
           seasonDiv.classList.add("open");
-          const w = seasonDiv.querySelector(".episodes-wrapper");
-          const scrollHeight = w.scrollHeight;
-          w.style.maxHeight=scrollHeight+"px";
+          w.style.maxHeight = w.scrollHeight + "px";
         }
       });
     });
-  } catch(err){ console.error(err); document.getElementById("anime-title").textContent="Ошибка загрузки данных"; }
+  } catch (err) {
+    console.error(err);
+  }
 }
 
-function showOpenModal(url){
-  const modal=document.getElementById('modal');
-  const openBtn=document.getElementById('modal-open');
-  const closeBtn=document.getElementById('modal-close');
-  openBtn.href=url;
-  modal.classList.add('active');
-  closeBtn.onclick=()=>modal.classList.remove('active');
-  modal.onclick=(e)=>{if(e.target===modal) modal.classList.remove('active');};
+function showOpenModal(url) {
+  const modal = document.getElementById("modal");
+  const openBtn = document.getElementById("modal-open");
+  openBtn.href = url;
+  modal.classList.add("active");
+  modal.onclick = (e) => { if (e.target === modal) modal.classList.remove("active"); };
 }
 
-document.addEventListener('DOMContentLoaded',loadAnime);
+document.addEventListener("DOMContentLoaded", loadAnime);
 </script>
 </body>
 </html>
+
+
 
