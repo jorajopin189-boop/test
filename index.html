@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Видео OK.ru</title>
+<title>VK Video</title>
 <style>
   html, body {
     margin: 0;
@@ -16,7 +16,6 @@
     flex-direction: column;
   }
 
-  /* Контейнер для iframe */
   #video-container {
     flex: 1;
     position: relative;
@@ -31,11 +30,10 @@
     border: none;
   }
 
-  /* Кнопка открыть в браузере */
   #open-browser-btn {
     width: 100%;
     padding: 12px;
-    background: #ff6600;
+    background: #4a76a8; /* VK-синий */
     color: #fff;
     font-size: 18px;
     font-weight: bold;
@@ -45,7 +43,7 @@
   }
 
   #open-browser-btn:hover {
-    background: #e65c00;
+    background: #3b5c82;
   }
 </style>
 </head>
@@ -53,8 +51,8 @@
 
 <div id="video-container">
   <iframe 
-    src="https://ok.ru/videoembed/1161630648985?nochat=1&autoplay=1" 
-    allow="autoplay; fullscreen; web-share"
+    src="https://vkvideo.ru/video_ext.php?oid=-144329953&id=456250037&hash=520e7f59f1a89dd2" 
+    allow="autoplay; encrypted-media; fullscreen; picture-in-picture" 
     allowfullscreen
     frameborder="0">
   </iframe>
@@ -64,7 +62,7 @@
 
 <script>
 function openInBrowser() {
-  const url = "https://ok.ru/videoembed/1161630648985?nochat=1&autoplay=1";
+  const url = "https://vkvideo.ru/video_ext.php?oid=-144329953&id=456250037&hash=520e7f59f1a89dd2";
   window.open(url, "_blank");
 }
 </script>
