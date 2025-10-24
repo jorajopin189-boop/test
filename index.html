@@ -3,68 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VK Video</title>
+<title>Навигатор аниме</title>
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    background: #000;
-    display: flex;
-    flex-direction: column;
+  body {
+    margin:0; padding:0; font-family: Arial, sans-serif;
+    background: #1b1b1b; color: #fff;
   }
-
-  #video-container {
-    flex: 1;
-    position: relative;
+  h1 { text-align:center; margin: 10px 0; }
+  .season { margin: 10px; padding:10px; background:#2b2b2b; border-radius:8px; }
+  .season h2 { margin:0 0 5px 0; }
+  .episodes { display:flex; flex-wrap:wrap; gap:5px; }
+  .episode-btn {
+    padding:8px 12px; background:#ff6600; color:#fff; border:none;
+    border-radius:5px; cursor:pointer; flex:1 0 60px; text-align:center;
   }
-
-  iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-
-  #open-browser-btn {
-    width: 100%;
-    padding: 12px;
-    background: #4a76a8; /* VK-синий */
-    color: #fff;
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
-    border: none;
-    cursor: pointer;
-  }
-
-  #open-browser-btn:hover {
-    background: #3b5c82;
-  }
+  .episode-btn:hover { background:#e65c00; }
 </style>
 </head>
 <body>
 
-<div id="video-container">
-  <iframe 
-    src="https://vkvideo.ru/video_ext.php?oid=-144329953&id=456250037&hash=520e7f59f1a89dd2" 
-    allow="autoplay; encrypted-media; fullscreen; picture-in-picture" 
-    allowfullscreen
-    frameborder="0">
-  </iframe>
-</div>
-
-<button id="open-browser-btn" onclick="openInBrowser()">Смотреть в браузере (Fullscreen)</button>
+<h1 id="anime-title">Аниме</h1>
+<div id="seasons-container"></div>
 
 <script>
-function openInBrowser() {
-  const url = "https://vkvideo.ru/video_ext.php?oid=-144329953&id=456250037&hash=520e7f59f1a89dd2";
-  window.open(url, "_blank");
+async function loadAnime() {
+  // Получаем animeId из query параметра
+  const params = new URLSearchParams(window.location.search);
+  const animeId = params.get("anime") || "demo-anime";
+
+  // Загружаем JSON с данными
+  const response = await fetch(`data/${animeId}.json`);
+  const animeData = await response.json();
+
+  document.getElementById("anime-title").textContent = animeData.title;
+
+  const container = document.getElementById("seasons-container");
+
+  animeData.seasons.forEach(season => {
+    const seasonDiv = document.createElement("div");
+    seasonDiv.className = "season";
+
+    const seasonTitle = document.createElement("h2");
+    seasonTitle.textContent = season.name;
+    seasonDiv.appendChild(seasonTitle);
+
+    const episodesDiv = document.createElement("div");
+    episodesDiv.className = "episodes";
+
+    season.episodes.forEach(ep => {
+      const btn = document.createElement("button");
+      btn.className = "episode-btn";
+      btn.textContent = ep.number;
+      btn.onclick = () => {
+        // открываем серию в браузере (пример)
+        window.open(ep.url, "_blank");
+      };
+      episodesDiv.appendChild(btn);
+    });
+
+    seasonDiv.appendChild(episodesDiv);
+    container.appendChild(seasonDiv);
+  });
 }
+
+loadAnime();
 </script>
 
 </body>
