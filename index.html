@@ -5,128 +5,148 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Аниме Навигатор</title>
 <style>
-  /* Тёмная тема */
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    background: #121212;
-    color: #e0e0e0;
-  }
+/* ---------- Базовые стили ---------- */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: #121212;
+  color: #e0e0e0;
+}
 
-  h1 {
-    text-align: center;
-    margin: 20px 0;
-    font-weight: 400;
-    color: #f5f5f5;
-  }
+h1 {
+  text-align: center;
+  margin: 24px 0 16px 0;
+  font-weight: 500;
+  color: #f5f5f5;
+  font-size: 28px;
+}
 
-  .season {
-    margin: 10px 20px;
-    border-radius: 10px;
-    background: #1e1e1e;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    overflow: hidden;
-  }
+/* ---------- Сезоны ---------- */
+.season {
+  margin: 12px 16px;
+  border-radius: 12px;
+  background: #1f1f1f;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  overflow: hidden;
+  transition: transform 0.2s;
+}
 
-  .season-header {
-    padding: 12px 16px;
-    background: #2a2a2a;
-    cursor: pointer;
-    user-select: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background 0.2s;
-  }
+.season:hover {
+  transform: translateY(-2px);
+}
 
-  .season-header:hover {
-    background: #3a3a3a;
-  }
+.season-header {
+  padding: 14px 18px;
+  background: #2c2c2c;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 4px solid #42a5f5;
+  transition: background 0.2s;
+}
 
-  .season-header h2 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 500;
-  }
+.season-header:hover {
+  background: #383838;
+}
 
-  .toggle-icon {
-    transition: transform 0.2s;
-    font-size: 16px;
-  }
+.season-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+}
 
-  .episodes {
-    display: none;
-    flex-wrap: wrap;
-    padding: 10px;
-    gap: 8px;
-    background: #1b1b1b;
-  }
+.toggle-icon {
+  transition: transform 0.2s;
+  font-size: 18px;
+}
 
-  .episode-btn {
-    flex: 1 0 60px;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 6px;
-    background: #90caf9;
-    color: #121212;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s;
-    text-align: center;
-  }
+/* ---------- Эпизоды ---------- */
+.episodes {
+  display: none;
+  flex-wrap: wrap;
+  padding: 12px;
+  gap: 10px;
+  background: #1a1a1a;
+  justify-content: flex-start;
+}
 
-  .episode-btn:hover {
-    background: #64b5f6;
-  }
+.episode-btn {
+  flex: 1 0 60px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #42a5f5, #1e88e5);
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.2s, transform 0.1s;
+}
 
-  /* Модальное окно */
-  #manual-fallback {
-    position: fixed;
-    left:0; top:0;
-    width:100%; height:100%;
-    background: rgba(0,0,0,0.85);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-    z-index:9999;
-  }
+.episode-btn:hover {
+  background: linear-gradient(135deg, #64b5f6, #2196f3);
+  transform: translateY(-2px);
+}
 
-  #manual-fallback div {
-    max-width: 90%;
-    background:#1e1e1e;
-    padding:20px;
-    border-radius:12px;
-    text-align:center;
-    color:#e0e0e0;
-  }
+/* ---------- Модальное окно ---------- */
+#manual-fallback {
+  position: fixed;
+  left:0; top:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.85);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  z-index:9999;
+}
 
-  #manual-fallback a, #manual-fallback button {
-    margin:5px;
-    padding:10px 14px;
-    border-radius:8px;
-    text-decoration:none;
-    border:none;
-    font-weight:500;
-    cursor:pointer;
-  }
+#manual-fallback div {
+  max-width: 90%;
+  background:#1e1e1e;
+  padding:24px;
+  border-radius:12px;
+  text-align:center;
+  color:#e0e0e0;
+}
 
-  #manual-fallback a {
-    background:#42a5f5;
-    color:#121212;
-  }
+#manual-fallback a, #manual-fallback button {
+  margin:6px;
+  padding:10px 16px;
+  border-radius:8px;
+  text-decoration:none;
+  border:none;
+  font-weight:500;
+  cursor:pointer;
+}
 
-  #manual-fallback button {
-    background:#333333;
-    color:#e0e0e0;
-  }
+#manual-fallback a {
+  background:#42a5f5;
+  color:#121212;
+}
+
+#manual-fallback button {
+  background:#333333;
+  color:#e0e0e0;
+}
+
+/* ---------- Футер ---------- */
+footer {
+  text-align: center;
+  padding: 16px 0;
+  font-size: 14px;
+  color: #888;
+  margin-top: 24px;
+}
 </style>
 </head>
 <body>
 
 <h1 id="anime-title">Аниме</h1>
 <div id="seasons-container"></div>
+<footer>С любовью, ваш Кинолист ❤️</footer>
 
 <script>
 const demoAnimeId = "demo-anime";
@@ -182,7 +202,7 @@ async function loadAnime() {
   });
 }
 
-// Показываем модальное окно с кнопкой для открытия видео во внешнем браузере
+// Модальное окно для открытия видео во внешнем браузере
 function showOpenModal(url) {
   if(document.getElementById('manual-fallback')) return;
 
