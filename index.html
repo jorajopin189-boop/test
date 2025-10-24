@@ -3,21 +3,85 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Навигатор аниме</title>
+<title>Аниме Навигатор</title>
 <style>
+  /* Общие стили */
   body {
-    margin:0; padding:0; font-family: Arial, sans-serif;
-    background: #1b1b1b; color: #fff;
+    margin: 0;
+    padding: 0;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: #121212;
+    color: #ffffff;
   }
-  h1 { text-align:center; margin: 10px 0; }
-  .season { margin: 10px; padding:10px; background:#2b2b2b; border-radius:8px; }
-  .season h2 { margin:0 0 5px 0; }
-  .episodes { display:flex; flex-wrap:wrap; gap:5px; }
+
+  h1 {
+    text-align: center;
+    margin: 20px 0;
+    font-weight: 400;
+  }
+
+  /* Стили для сезонов */
+  .season {
+    margin: 10px 20px;
+    border-radius: 10px;
+    background: #1e1e1e;
+    overflow: hidden;
+  }
+
+  .season-header {
+    padding: 12px 16px;
+    background: #2c2c2c;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .season-header:hover {
+    background: #3a3a3a;
+  }
+
+  .season-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .episodes {
+    display: none;
+    flex-wrap: wrap;
+    padding: 10px;
+    gap: 6px;
+    background: #1b1b1b;
+  }
+
   .episode-btn {
-    padding:8px 12px; background:#ff6600; color:#fff; border:none;
-    border-radius:5px; cursor:pointer; flex:1 0 60px; text-align:center;
+    flex: 1 0 50px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background: #ff5722;
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-align: center;
   }
-  .episode-btn:hover { background:#e65c00; }
+
+  .episode-btn:hover {
+    background: #e64a19;
+  }
+
+  /* Иконка раскрытия */
+  .toggle-icon {
+    transition: transform 0.2s;
+  }
+
+  .toggle-icon.open {
+    transform: rotate(90deg);
+  }
+
 </style>
 </head>
 <body>
@@ -31,7 +95,7 @@ async function loadAnime() {
   const params = new URLSearchParams(window.location.search);
   const animeId = params.get("anime") || "demo-anime";
 
-  // Загружаем JSON с данными
+  // Загружаем JSON
   const response = await fetch(`data/${animeId}.json`);
   const animeData = await response.json();
 
@@ -43,9 +107,19 @@ async function loadAnime() {
     const seasonDiv = document.createElement("div");
     seasonDiv.className = "season";
 
-    const seasonTitle = document.createElement("h2");
-    seasonTitle.textContent = season.name;
-    seasonDiv.appendChild(seasonTitle);
+    const header = document.createElement("div");
+    header.className = "season-header";
+
+    const title = document.createElement("h2");
+    title.textContent = season.name;
+
+    const icon = document.createElement("span");
+    icon.className = "toggle-icon";
+    icon.textContent = "▶";
+
+    header.appendChild(title);
+    header.appendChild(icon);
+    seasonDiv.appendChild(header);
 
     const episodesDiv = document.createElement("div");
     episodesDiv.className = "episodes";
@@ -54,20 +128,25 @@ async function loadAnime() {
       const btn = document.createElement("button");
       btn.className = "episode-btn";
       btn.textContent = ep.number;
-      btn.onclick = () => {
-        // открываем серию в браузере (пример)
-        window.open(ep.url, "_blank");
-      };
+      btn.onclick = () => window.open(ep.url, "_blank");
       episodesDiv.appendChild(btn);
     });
 
     seasonDiv.appendChild(episodesDiv);
     container.appendChild(seasonDiv);
+
+    // Событие раскрытия сезона
+    header.addEventListener("click", () => {
+      const isOpen = episodesDiv.style.display === "flex";
+      episodesDiv.style.display = isOpen ? "none" : "flex";
+      icon.classList.toggle("open", !isOpen);
+    });
   });
 }
 
 loadAnime();
 </script>
-
 </body>
 </html>
+
+
