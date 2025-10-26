@@ -1,318 +1,329 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Аниме Навигатор</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --bg-primary: #0d0d0d;
-      --bg-secondary: #181818;
-      --bg-tertiary: #232323;
-      --accent-primary: #7c3aed;
-      --accent-secondary: #a78bfa;
-      --text-primary: #f8fafc;
-      --text-secondary: #cbd5e1;
-      --text-muted: #64748b;
-      --border-radius: 12px;
-      --transition: all 0.3s ease;
-      --shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кинолист</title>
+<style>
     body {
-      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      min-height: 100vh;
-      padding: 20px;
-      background-image:
-        radial-gradient(circle at 15% 40%, rgba(124, 58, 237, 0.1) 0%, transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(167, 139, 250, 0.05) 0%, transparent 25%);
-      overflow-x: hidden;
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        background-color: #0e0e0e;
+        color: #e0e0e0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        align-items: center;
+        padding: 20px;
     }
 
-    .container { max-width: 1100px; margin: 0 auto; }
-
-    .header { text-align: center; margin-bottom: 40px; }
-    .header h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-      -webkit-background-clip: text;
-      color: transparent;
-      margin-bottom: 8px;
+    h1 {
+        font-size: 1.2rem;
+        font-weight: 400;
+        margin-bottom: 15px;
+        color: #b8b8b8;
     }
-    .header p { color: var(--text-secondary); }
-
-    .progress {
-      text-align: center;
-      margin-bottom: 25px;
-      color: var(--text-secondary);
-      font-size: 1.05rem;
-    }
-    .progress strong { color: var(--accent-primary); }
-
-    .seasons-container { display: flex; flex-direction: column; gap: 20px; }
 
     .season {
-      background: var(--bg-secondary);
-      border-radius: var(--border-radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255,255,255,0.05);
-      transition: var(--transition);
+        width: 100%;
+        max-width: 600px;
+        margin-bottom: 10px;
+        background-color: #1a1a1a;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
-    .season:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
 
     .season-header {
-      padding: 20px 24px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--bg-secondary);
-      transition: var(--transition);
-    }
-    .season-header:hover { background: var(--bg-tertiary); }
-    .season-header h2 { font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
-    .season-icon {
-      width: 36px; height: 36px;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(124,58,237,0.15);
-      border-radius: 8px; color: var(--accent-primary);
-    }
-    .toggle-icon { transition: var(--transition); color: var(--text-secondary); }
-    .season.open .toggle-icon { transform: rotate(180deg); color: var(--accent-primary); }
-
-    .episodes {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      padding: 0 24px;
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      transition: max-height 0.6s ease, opacity 0.5s ease, padding 0.4s ease;
-      margin-bottom: 0;
-    }
-    .season.open .episodes {
-      padding: 20px 24px 28px;
-      opacity: 1;
-      margin-bottom: 10px;
+        padding: 15px;
+        background-color: #242424;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.3s;
     }
 
-    .episode-btn {
-      padding: 14px 10px;
-      border: none;
-      border-radius: 10px;
-      background: var(--bg-tertiary);
-      color: var(--text-primary);
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      transition: var(--transition);
-    }
-    .episode-btn:hover {
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-      box-shadow: 0 0 15px rgba(124,58,237,0.4);
-      transform: translateY(-3px);
+    .season-header:hover {
+        background-color: #2e2e2e;
     }
 
-    .next-watch {
-      box-shadow: 0 0 12px rgba(124,58,237,0.7);
-      border: 1px solid var(--accent-primary);
+    .season-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease;
+        padding: 0 15px;
     }
 
-    .episode-number { font-size: 1.1rem; }
+    .episode-buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        padding-bottom: 15px;
+        margin-top: 15px;
+    }
+
+    button.episode {
+        background-color: #292929;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 0;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    button.episode:hover {
+        background-color: #3a3a3a;
+    }
+
+    button.episode.next {
+        background-color: #5c3aff;
+    }
+
+    .footer {
+        margin-top: auto;
+        font-size: 0.9rem;
+        color: #777;
+        text-align: center;
+        padding: 20px 0;
+    }
 
     /* Модальное окно */
     .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(6px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      opacity: 0; visibility: hidden;
-      transition: opacity 0.4s ease, visibility 0.4s ease;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(8px);
+        background: rgba(0,0,0,0.6);
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
-    .modal.active {
-      opacity: 1; visibility: visible;
+
+    .modal.show {
+        display: flex;
+        opacity: 1;
     }
 
     .modal-content {
-      background: var(--bg-secondary);
-      border-radius: var(--border-radius);
-      padding: 30px;
-      max-width: 480px;
-      width: 90%;
-      text-align: center;
-      box-shadow: var(--shadow);
-      transform: scale(0.95);
-      transition: transform 0.3s ease;
-      position: relative;
-      border: 1px solid rgba(255,255,255,0.08);
+        background-color: #1f1f1f;
+        border-radius: 16px;
+        padding: 25px;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        position: relative;
+        transform: scale(0.9);
+        transition: transform 0.3s ease;
     }
-    .modal.active .modal-content { transform: scale(1); }
 
-    .close-modal {
-      position: absolute;
-      top: 14px;
-      right: 16px;
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: var(--transition);
+    .modal.show .modal-content {
+        transform: scale(1);
     }
-    .close-modal:hover { color: var(--accent-primary); }
 
-    .modal h3 { font-size: 1.5rem; margin-bottom: 10px; color: var(--accent-primary); }
-    .modal p { color: var(--text-secondary); margin-bottom: 25px; line-height: 1.6; }
-
-    .btn-primary {
-      display: inline-block;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-weight: 600;
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-      color: white;
-      text-decoration: none;
-      transition: var(--transition);
+    .modal-content h2 {
+        margin-top: 0;
+        color: #fff;
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(124,58,237,0.4); }
 
-    footer {
-      text-align:center;
-      padding:40px 0 20px;
-      color:var(--text-muted);
-      font-size:0.9rem;
-      margin-top:40px;
-      border-top:1px solid rgba(255,255,255,0.05);
+    .modal-content p {
+        color: #cfcfcf;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin: 10px 0 20px;
     }
-    .heart { color:#ef4444; animation:pulse 1.5s infinite; }
-    @keyframes pulse { 50% { transform: scale(1.15); } }
 
-    @media(max-width:768px){
-      .episodes { grid-template-columns: repeat(4, 1fr); }
-      .header h1{font-size:2rem}
+    .modal-content video {
+        width: 100%;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        cursor: pointer;
     }
-  </style>
+
+    .modal-content button {
+        background-color: #5c3aff;
+        border: none;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .modal-content button:hover {
+        background-color: #775bff;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: none;
+        border: none;
+        color: #aaa;
+        font-size: 1.4rem;
+        cursor: pointer;
+    }
+
+    .close-btn:hover {
+        color: #fff;
+    }
+</style>
 </head>
 <body>
-  <div class="container">
-    <header class="header">
-      <h1 id="anime-title">Аниме Навигатор</h1>
-      <p>Откройте для себя мир аниме в стильном минималистичном интерфейсе</p>
-    </header>
 
-    <div id="progress" class="progress"></div>
-    <div id="seasons-container" class="seasons-container"></div>
+<h1 id="lastWatched">Последняя серия, которую вы посмотрели: —</h1>
 
-    <footer>С любовью, ваш <span class="heart">❤️</span> Кинолист</footer>
+<div id="seasons"></div>
+
+<div class="footer">С любовью, ваш Кинолист 💜</div>
+
+<!-- Модальное окно -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <button class="close-btn" id="closeModal">✕</button>
+    <video id="promoVideo" poster="https://placehold.co/400x200/1a1a1a/ffffff?text=Кинолист" controls></video>
+    <h2>Спасибо, что с нами!</h2>
+    <p>Наш сервис полностью бесплатен 💜 Иногда вы можете увидеть рекламу — она помогает нам развиваться.  
+    Вы можете поддержать проект донатом звёздами на главной странице нашего бота 🌟  
+    А сейчас — приятного просмотра!</p>
+    <button id="continueBtn">Продолжить просмотр</button>
   </div>
+</div>
 
-  <div id="modal" class="modal">
-    <div class="modal-content">
-      <span class="close-modal"><i class="fas fa-times"></i></span>
-      <h3>Спасибо, что с нами!</h3>
-      <p>Наш сервис полностью бесплатен 💜 Иногда вы можете увидеть рекламу — она помогает нам развиваться.  
-      Если хотите поддержать проект — вы можете сделать небольшой донат звёздами 🌟  
-      А сейчас — приятного просмотра!</p>
-      <a id="modal-open" class="btn-primary" target="_blank" rel="noopener noreferrer">Продолжить просмотр</a>
-    </div>
-  </div>
+<script>
+const seasonsData = [
+  { number: 1, episodes: 24 },
+  { number: 2, episodes: 24 },
+  { number: 3, episodes: 24 }
+];
 
-  <script>
-    async function loadAnime() {
-      const params = new URLSearchParams(window.location.search);
-      const animeId = params.get("anime");
-      if (!animeId) return;
+const seasonsContainer = document.getElementById("seasons");
+const modal = document.getElementById("modal");
+const closeModal = document.getElementById("closeModal");
+const continueBtn = document.getElementById("continueBtn");
+const promoVideo = document.getElementById("promoVideo");
+const lastWatchedEl = document.getElementById("lastWatched");
 
-      const res = await fetch(`data/${animeId}.json`);
-      const animeData = await res.json();
+let lastWatched = JSON.parse(localStorage.getItem("lastWatched")) || { season: null, episode: null };
+let watchCount = JSON.parse(localStorage.getItem("watchCount")) || 0;
+let currentLink = null;
 
-      document.getElementById("anime-title").textContent = animeData.title;
+function renderSeasons() {
+  seasonsContainer.innerHTML = "";
+  seasonsData.forEach(s => {
+    const seasonDiv = document.createElement("div");
+    seasonDiv.className = "season";
 
-      const container = document.getElementById("seasons-container");
-      const progressDiv = document.getElementById("progress");
-      const last = JSON.parse(localStorage.getItem(animeId + "_lastEpisode")) || { season: 1, episode: 1 };
-      progressDiv.innerHTML = `Последняя серия, которую вы посмотрели: <strong>${last.episode}</strong> <span style="color:var(--text-muted)">(${last.season} сезон)</span>`;
+    const header = document.createElement("div");
+    header.className = "season-header";
+    header.innerHTML = `Сезон ${s.number} <span>+</span>`;
+    header.addEventListener("click", () => toggleSeason(seasonDiv, s.number));
 
-      animeData.seasons.forEach((season, i) => {
-        const seasonDiv = document.createElement("div");
-        seasonDiv.className = "season";
+    const content = document.createElement("div");
+    content.className = "season-content";
 
-        const header = document.createElement("div");
-        header.className = "season-header";
-        header.innerHTML = `
-          <h2><div class="season-icon"><i class="fas fa-play"></i></div>${season.name}</h2>
-          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>`;
-        seasonDiv.appendChild(header);
+    const buttonsDiv = document.createElement("div");
+    buttonsDiv.className = "episode-buttons";
 
-        const episodesDiv = document.createElement("div");
-        episodesDiv.className = "episodes";
-
-        season.episodes.forEach(ep => {
-          const btn = document.createElement("button");
-          btn.className = "episode-btn";
-          btn.innerHTML = `<span class="episode-number">${ep.number}</span>`;
-          if (ep.number === last.episode + 1 && i + 1 === last.season) btn.classList.add("next-watch");
-          btn.onclick = () => {
-            localStorage.setItem(animeId + "_lastEpisode", JSON.stringify({ season: i + 1, episode: ep.number }));
-            maybeShowModal(ep.url);
-          };
-          episodesDiv.appendChild(btn);
-        });
-
-        seasonDiv.appendChild(episodesDiv);
-        container.appendChild(seasonDiv);
-
-        header.addEventListener("click", () => {
-          const open = seasonDiv.classList.contains("open");
-          document.querySelectorAll(".season.open").forEach(s => {
-            s.classList.remove("open");
-            const ep = s.querySelector(".episodes");
-            ep.style.maxHeight = "0";
-            ep.style.opacity = "0";
-          });
-          if (!open) {
-            seasonDiv.classList.add("open");
-            const ep = episodesDiv;
-            ep.style.maxHeight = ep.scrollHeight + 40 + "px";
-            ep.style.opacity = "1";
-          }
-        });
-      });
+    for (let i = 1; i <= s.episodes; i++) {
+      const btn = document.createElement("button");
+      btn.className = "episode";
+      btn.textContent = i;
+      btn.addEventListener("click", () => playEpisode(s.number, i));
+      buttonsDiv.appendChild(btn);
     }
 
-    function maybeShowModal(url) {
-      let count = parseInt(localStorage.getItem("watch_count") || "0");
-      count++;
-      localStorage.setItem("watch_count", count);
-      if (count === 1 || count % 5 === 0) showModal(url);
-      else window.open(url, "_blank");
-    }
+    content.appendChild(buttonsDiv);
+    seasonDiv.appendChild(header);
+    seasonDiv.appendChild(content);
+    seasonsContainer.appendChild(seasonDiv);
+  });
 
-    function showModal(url) {
-      const modal = document.getElementById("modal");
-      const close = document.querySelector(".close-modal");
-      const openBtn = document.getElementById("modal-open");
-      openBtn.href = url;
-      modal.classList.add("active");
-      close.onclick = () => modal.classList.remove("active");
-      openBtn.onclick = () => {
-        modal.classList.remove("active");
-        setTimeout(() => window.open(url, "_blank"), 150);
-      };
-      modal.onclick = e => { if (e.target === modal) modal.classList.remove("active"); };
-    }
+  updateNextEpisodeHighlight();
+}
 
-    document.addEventListener("DOMContentLoaded", loadAnime);
-  </script>
+function toggleSeason(seasonDiv, num) {
+  const content = seasonDiv.querySelector(".season-content");
+  const expanded = content.style.maxHeight && content.style.maxHeight !== "0px";
+  document.querySelectorAll(".season-content").forEach(c => c.style.maxHeight = "0px");
+  if (!expanded) content.style.maxHeight = content.scrollHeight + 15 + "px";
+}
+
+function updateNextEpisodeHighlight() {
+  document.querySelectorAll(".episode").forEach(b => b.classList.remove("next"));
+  if (lastWatched.season && lastWatched.episode) {
+    let nextEp = lastWatched.episode + 1;
+    let nextSe = lastWatched.season;
+    const currentSeason = seasonsData.find(s => s.number === nextSe);
+    if (nextEp > currentSeason.episodes) {
+      nextEp = 1;
+      nextSe++;
+    }
+    const nextBtn = document.querySelector(`.season:nth-child(${nextSe}) .episode:nth-child(${nextEp})`);
+    if (nextBtn) nextBtn.classList.add("next");
+    lastWatchedEl.textContent = `Последняя серия, которую вы посмотрели: ${lastWatched.episode} , ${lastWatched.season} сезона`;
+  }
+}
+
+function playEpisode(season, episode) {
+  currentLink = `https://ok.ru/videoembed/1161630648985?nochat=1&autoplay=1`; // пример
+  lastWatched = { season, episode };
+  localStorage.setItem("lastWatched", JSON.stringify(lastWatched));
+  watchCount++;
+  localStorage.setItem("watchCount", JSON.stringify(watchCount));
+
+  updateNextEpisodeHighlight();
+
+  if (watchCount === 1 || watchCount % 2 === 0) {
+    showModal();
+  } else {
+    window.location.href = currentLink;
+  }
+}
+
+function showModal() {
+  modal.classList.add("show");
+  promoVideo.src = "https://www.w3schools.com/html/mov_bbb.mp4"; // пример видео
+  continueBtn.disabled = true;
+  closeModal.disabled = true;
+  continueBtn.style.opacity = 0.5;
+  closeModal.style.opacity = 0.5;
+
+  promoVideo.onclick = () => {
+    window.location.href = currentLink;
+  };
+
+  setTimeout(() => {
+    continueBtn.disabled = false;
+    closeModal.disabled = false;
+    continueBtn.style.opacity = 1;
+    closeModal.style.opacity = 1;
+  }, 10000);
+}
+
+continueBtn.addEventListener("click", () => {
+  modal.classList.remove("show");
+  setTimeout(() => {
+    window.location.href = currentLink;
+  }, 300);
+});
+
+closeModal.addEventListener("click", () => {
+  modal.classList.remove("show");
+});
+
+renderSeasons();
+</script>
+
 </body>
 </html>
