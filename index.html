@@ -1,318 +1,493 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Аниме Навигатор</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --bg-primary: #0d0d0d;
-      --bg-secondary: #181818;
-      --bg-tertiary: #232323;
-      --accent-primary: #7c3aed;
-      --accent-secondary: #a78bfa;
-      --text-primary: #f8fafc;
-      --text-secondary: #cbd5e1;
-      --text-muted: #64748b;
-      --border-radius: 12px;
-      --transition: all 0.3s ease;
-      --shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Аниме Навигатор</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --bg-primary:#0d0d0d;
+  --bg-secondary:#181818;
+  --bg-tertiary:#232323;
+  --accent-primary:#7c3aed;
+  --accent-secondary:#a78bfa;
+  --text-primary:#f8fafc;
+  --text-secondary:#cbd5e1;
+  --muted:#64748b;
+  --radius:12px;
+  --shadow:0 10px 25px rgba(0,0,0,0.4);
+  --ease:cubic-bezier(0.2,0.9,0.3,1);
+}
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+  background:var(--bg-primary);
+  color:var(--text-primary);
+  min-height:100vh;
+  padding:20px;
+  -webkit-font-smoothing:antialiased;
+}
 
-    body {
-      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      min-height: 100vh;
-      padding: 20px;
-      background-image:
-        radial-gradient(circle at 15% 40%, rgba(124, 58, 237, 0.1) 0%, transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(167, 139, 250, 0.05) 0%, transparent 25%);
-      overflow-x: hidden;
-    }
+.container{max-width:1100px;margin:0 auto}
 
-    .container { max-width: 1100px; margin: 0 auto; }
+.header{text-align:center;margin-bottom:18px}
+.header h1{
+  font-size:2.2rem;
+  font-weight:700;
+  background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));
+  -webkit-background-clip:text;color:transparent;margin-bottom:6px;
+}
+.header p{color:var(--text-secondary);font-size:0.98rem;margin-bottom:10px}
 
-    .header { text-align: center; margin-bottom: 40px; }
-    .header h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-      -webkit-background-clip: text;
-      color: transparent;
-      margin-bottom: 8px;
-    }
-    .header p { color: var(--text-secondary); }
+#last-watched-info{
+  display:inline-block;
+  background:rgba(124,58,237,0.08);
+  color:var(--accent-primary);
+  padding:6px 12px;border-radius:10px;font-weight:500;margin-bottom:18px;
+}
 
-    .progress {
-      text-align: center;
-      margin-bottom: 25px;
-      color: var(--text-secondary);
-      font-size: 1.05rem;
-    }
-    .progress strong { color: var(--accent-primary); }
+/* seasons */
+.seasons-container{display:flex;flex-direction:column;gap:18px}
+.season{
+  background:var(--bg-secondary);
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,0.04);
+  box-shadow:var(--shadow);
+  overflow:hidden;transition:transform .22s var(--ease);
+}
+.season:hover{transform:translateY(-4px)}
 
-    .seasons-container { display: flex; flex-direction: column; gap: 20px; }
+.season-header{
+  padding:18px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;
+}
+.season-header h2{display:flex;align-items:center;gap:10px;font-size:1.05rem}
+.season-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(124,58,237,0.12);color:var(--accent-primary)}
+.toggle-icon{color:var(--text-secondary);transition:transform .25s var(--ease)}
+.season.open .toggle-icon{transform:rotate(180deg);color:var(--accent-primary)}
 
-    .season {
-      background: var(--bg-secondary);
-      border-radius: var(--border-radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255,255,255,0.05);
-      transition: var(--transition);
-    }
-    .season:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+/* episodes wrapper: animate max-height + opacity */
+.episodes{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  padding:0 20px;
+  max-height:0;
+  overflow:hidden;
+  opacity:0;
+  transition:max-height 0.5s var(--ease), opacity 0.35s var(--ease), padding 0.25s var(--ease);
+}
+.season.open .episodes{
+  padding:16px 20px 22px;
+  opacity:1;
+}
 
-    .season-header {
-      padding: 20px 24px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--bg-secondary);
-      transition: var(--transition);
-    }
-    .season-header:hover { background: var(--bg-tertiary); }
-    .season-header h2 { font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
-    .season-icon {
-      width: 36px; height: 36px;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(124,58,237,0.15);
-      border-radius: 8px; color: var(--accent-primary);
-    }
-    .toggle-icon { transition: var(--transition); color: var(--text-secondary); }
-    .season.open .toggle-icon { transform: rotate(180deg); color: var(--accent-primary); }
+/* ensure some bottom space so last row not cut */
+.episodes-inner { padding-bottom:6px; }
 
-    .episodes {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      padding: 0 24px;
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      transition: max-height 0.6s ease, opacity 0.5s ease, padding 0.4s ease;
-      margin-bottom: 0;
-    }
-    .season.open .episodes {
-      padding: 20px 24px 28px;
-      opacity: 1;
-      margin-bottom: 10px;
-    }
+.episode-btn{
+  padding:12px 8px;border-radius:10px;background:var(--bg-tertiary);
+  border:none;color:var(--text-primary);font-weight:600;cursor:pointer;
+  transition:transform .18s var(--ease), box-shadow .18s var(--ease), background .18s var(--ease);
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+}
+.episode-btn:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(124,58,237,0.14);background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary))}
 
-    .episode-btn {
-      padding: 14px 10px;
-      border: none;
-      border-radius: 10px;
-      background: var(--bg-tertiary);
-      color: var(--text-primary);
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      transition: var(--transition);
-    }
-    .episode-btn:hover {
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-      box-shadow: 0 0 15px rgba(124,58,237,0.4);
-      transform: translateY(-3px);
-    }
+.episode-number{font-size:1.02rem}
+.episode-duration{font-size:0.78rem;color:var(--text-secondary)}
 
-    .next-watch {
-      box-shadow: 0 0 12px rgba(124,58,237,0.7);
-      border: 1px solid var(--accent-primary);
-    }
+/* last watched & next */
+.episode-btn.last-watched{outline:2px solid rgba(124,58,237,0.95);box-shadow:0 6px 20px rgba(124,58,237,0.14)}
+.episode-btn.next-watch{outline:2px dashed rgba(167,139,250,0.9);box-shadow:0 6px 24px rgba(167,139,250,0.18)}
 
-    .episode-number { font-size: 1.1rem; }
+/* modal */
+.modal{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  z-index:1200;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .3s var(--ease), visibility .3s var(--ease);
+}
+.modal.active{opacity:1;visibility:visible;pointer-events:auto}
+.modal-backdrop{
+  position:absolute;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);
+}
 
-    /* Модальное окно */
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(6px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      opacity: 0; visibility: hidden;
-      transition: opacity 0.4s ease, visibility 0.4s ease;
-    }
-    .modal.active {
-      opacity: 1; visibility: visible;
-    }
+/* modal content */
+.modal-card{
+  position:relative;z-index:2;
+  width:92%;max-width:720px;border-radius:12px;padding:18px;background:var(--bg-secondary);
+  box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.06);
+  transform:translateY(8px) scale(.98);transition:transform .3s var(--ease), opacity .25s var(--ease);
+}
+.modal.active .modal-card{transform:translateY(0) scale(1)}
 
-    .modal-content {
-      background: var(--bg-secondary);
-      border-radius: var(--border-radius);
-      padding: 30px;
-      max-width: 480px;
-      width: 90%;
-      text-align: center;
-      box-shadow: var(--shadow);
-      transform: scale(0.95);
-      transition: transform 0.3s ease;
-      position: relative;
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .modal.active .modal-content { transform: scale(1); }
+.modal-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.modal-title{font-size:1.15rem;color:var(--accent-primary);font-weight:700}
+.modal-body{color:var(--text-secondary);line-height:1.5;margin-bottom:12px}
 
-    .close-modal {
-      position: absolute;
-      top: 14px;
-      right: 16px;
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .close-modal:hover { color: var(--accent-primary); }
+/* ad video */
+.ad-video{
+  width:100%;height:320px;background:#000;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  position:relative;margin-bottom:12px;
+}
+.ad-video video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer}
+.ad-overlay{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-end;padding:10px;pointer-events:none}
+.ad-cta{pointer-events:auto;background:rgba(0,0,0,0.45);color:white;padding:6px 10px;border-radius:8px;font-weight:600;margin-left:8px}
 
-    .modal h3 { font-size: 1.5rem; margin-bottom: 10px; color: var(--accent-primary); }
-    .modal p { color: var(--text-secondary); margin-bottom: 25px; line-height: 1.6; }
+/* buttons */
+.modal-actions{display:flex;gap:10px;justify-content:center;align-items:center}
+.btn{padding:10px 16px;border-radius:8px;font-weight:700;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:#fff;border:none;cursor:pointer}
+.btn[disabled]{opacity:.6;cursor:default}
+.btn.secondary{background:transparent;color:var(--text-primary);border:1px solid rgba(255,255,255,0.06)}
 
-    .btn-primary {
-      display: inline-block;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-weight: 600;
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-      color: white;
-      text-decoration: none;
-      transition: var(--transition);
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(124,58,237,0.4); }
+/* close small */
+.modal-close{position:absolute;top:12px;right:12px;background:transparent;border:none;color:var(--text-secondary);cursor:pointer;font-size:1.05rem;opacity:.95;transition:transform .18s var(--ease)}
+.modal-close:hover{transform:scale(1.12);color:var(--accent-primary)}
 
-    footer {
-      text-align:center;
-      padding:40px 0 20px;
-      color:var(--text-muted);
-      font-size:0.9rem;
-      margin-top:40px;
-      border-top:1px solid rgba(255,255,255,0.05);
-    }
-    .heart { color:#ef4444; animation:pulse 1.5s infinite; }
-    @keyframes pulse { 50% { transform: scale(1.15); } }
+footer{margin-top:26px;text-align:center;color:var(--muted);font-size:0.9rem;padding-top:20px;border-top:1px solid rgba(255,255,255,0.03)}
 
-    @media(max-width:768px){
-      .episodes { grid-template-columns: repeat(4, 1fr); }
-      .header h1{font-size:2rem}
-    }
-  </style>
+/* responsiveness: keep 4 columns but allow shrink */
+@media(max-width:900px){.episodes{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:700px){.episodes{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:420px){.episodes{grid-template-columns:repeat(4,1fr)}.ad-video{height:220px}}
+</style>
 </head>
 <body>
-  <div class="container">
-    <header class="header">
-      <h1 id="anime-title">Аниме Навигатор</h1>
-      <p>Откройте для себя мир аниме в стильном минималистичном интерфейсе</p>
-    </header>
+<div class="container">
+  <header class="header">
+    <h1 id="anime-title">Аниме Навигатор</h1>
+    <p>Элегантный медиагид по сериалам и фильмам</p>
+    <div id="last-watched-info"></div>
+  </header>
 
-    <div id="progress" class="progress"></div>
-    <div id="seasons-container" class="seasons-container"></div>
+  <div id="seasons-container" class="seasons-container"></div>
 
-    <footer>С любовью, ваш <span class="heart">❤️</span> Кинолист</footer>
-  </div>
+  <footer>С любовью, ваш <span style="color:#ef4444">❤️</span> Кинолист</footer>
+</div>
 
-  <div id="modal" class="modal">
-    <div class="modal-content">
-      <span class="close-modal"><i class="fas fa-times"></i></span>
-      <h3>Спасибо, что с нами!</h3>
-      <p>Наш сервис полностью бесплатен 💜 Иногда вы можете увидеть рекламу — она помогает нам развиваться.  
-      Если хотите поддержать проект — вы можете сделать небольшой донат звёздами 🌟  
-      А сейчас — приятного просмотра!</p>
-      <a id="modal-open" class="btn-primary" target="_blank" rel="noopener noreferrer">Продолжить просмотр</a>
+<!-- Modal -->
+<div id="modal" class="modal" aria-hidden="true" role="dialog">
+  <div class="modal-backdrop"></div>
+  <div class="modal-card" role="document">
+    <button class="modal-close" aria-label="Закрыть">✕</button>
+
+    <div id="modal-content-container">
+      <!-- content injected dynamically: either welcome or ad -->
     </div>
+
+    <div style="height:8px;"></div>
+    <div id="modal-actions-area" class="modal-actions" style="padding-bottom:6px"></div>
   </div>
+</div>
 
-  <script>
-    async function loadAnime() {
-      const params = new URLSearchParams(window.location.search);
-      const animeId = params.get("anime");
-      if (!animeId) return;
+<script>
+/* CONFIG:
+  - ADS_MODE: 'sequential' or 'random'
+  - AD_SOURCE: path to ads json
+  - ADS_LOCK_SECONDS: seconds to block close/continue on ad modals
+*/
+const ADS_MODE = 'sequential'; // 'random' possible
+const AD_SOURCE = 'ads.json';
+const ADS_LOCK_SECONDS = 10;
 
-      const res = await fetch(`data/${animeId}.json`);
-      const animeData = await res.json();
+/* Utilities */
+function $(sel, ctx=document){ return ctx.querySelector(sel) }
+function $all(sel, ctx=document){ return Array.from((ctx||document).querySelectorAll(sel)) }
 
-      document.getElementById("anime-title").textContent = animeData.title;
+/* State */
+let animeId = null;
+let ads = [];
+let adsIndex = parseInt(localStorage.getItem('ads_index')||'0', 10) || 0;
 
-      const container = document.getElementById("seasons-container");
-      const progressDiv = document.getElementById("progress");
-      const last = JSON.parse(localStorage.getItem(animeId + "_lastEpisode")) || { season: 1, episode: 1 };
-      progressDiv.innerHTML = `Последняя серия, которую вы посмотрели: <strong>${last.episode}</strong> <span style="color:var(--text-muted)">(${last.season} сезон)</span>`;
+/* Load ads.json (swallow errors) */
+async function loadAds(){
+  try{
+    const r = await fetch(AD_SOURCE);
+    if(!r.ok) throw new Error('no ads');
+    const j = await r.json();
+    if(Array.isArray(j.ads)) ads = j.ads;
+  }catch(e){
+    console.warn('ads load failed', e);
+    ads = [];
+  }
+}
 
-      animeData.seasons.forEach((season, i) => {
-        const seasonDiv = document.createElement("div");
-        seasonDiv.className = "season";
+/* Main load */
+async function loadAnime(){
+  const params = new URLSearchParams(location.search);
+  animeId = params.get('anime') || 'demo-anime';
+  // load ads first
+  await loadAds();
 
-        const header = document.createElement("div");
-        header.className = "season-header";
-        header.innerHTML = `
-          <h2><div class="season-icon"><i class="fas fa-play"></i></div>${season.name}</h2>
-          <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>`;
-        seasonDiv.appendChild(header);
+  // fetch anime json
+  try{
+    const res = await fetch(`data/${animeId}.json`);
+    if(!res.ok) throw new Error('anime json not found');
+    const data = await res.json();
+    renderAnime(data);
+  }catch(err){
+    console.error(err);
+    // minimal fallback: show message
+    document.getElementById('anime-title').textContent = 'Аниме не найдено';
+  }
+}
 
-        const episodesDiv = document.createElement("div");
-        episodesDiv.className = "episodes";
+/* Render seasons & episodes */
+function renderAnime(data){
+  document.getElementById('anime-title').textContent = data.title || 'Аниме';
+  const container = document.getElementById('seasons-container');
 
-        season.episodes.forEach(ep => {
-          const btn = document.createElement("button");
-          btn.className = "episode-btn";
-          btn.innerHTML = `<span class="episode-number">${ep.number}</span>`;
-          if (ep.number === last.episode + 1 && i + 1 === last.season) btn.classList.add("next-watch");
-          btn.onclick = () => {
-            localStorage.setItem(animeId + "_lastEpisode", JSON.stringify({ season: i + 1, episode: ep.number }));
-            maybeShowModal(ep.url);
-          };
-          episodesDiv.appendChild(btn);
-        });
+  // load last-watched from localStorage
+  let lastWatched = null;
+  try{ lastWatched = JSON.parse(localStorage.getItem(animeId + '_lastEpisode') || 'null'); } catch(e){ lastWatched = null; }
 
-        seasonDiv.appendChild(episodesDiv);
-        container.appendChild(seasonDiv);
+  // watched counter
+  let watchedCount = parseInt(localStorage.getItem(animeId + '_watch_count') || '0', 10);
 
-        header.addEventListener("click", () => {
-          const open = seasonDiv.classList.contains("open");
-          document.querySelectorAll(".season.open").forEach(s => {
-            s.classList.remove("open");
-            const ep = s.querySelector(".episodes");
-            ep.style.maxHeight = "0";
-            ep.style.opacity = "0";
-          });
-          if (!open) {
-            seasonDiv.classList.add("open");
-            const ep = episodesDiv;
-            ep.style.maxHeight = ep.scrollHeight + 40 + "px";
-            ep.style.opacity = "1";
+  // UI top info
+  const topInfo = $('#last-watched-info');
+  if(lastWatched && lastWatched.episode != null && lastWatched.season != null){
+    topInfo.textContent = `Последняя серия, которую вы посмотрели: ${lastWatched.episode}, ${lastWatched.season} сезона`;
+  } else {
+    topInfo.textContent = '';
+  }
+
+  // Build seasons
+  data.seasons.forEach((season, sIndex) => {
+    const seasonDiv = document.createElement('div'); seasonDiv.className = 'season';
+    const header = document.createElement('div'); header.className = 'season-header';
+    header.innerHTML = `<h2><span class="season-icon"><i class="fas fa-play"></i></span>${season.name}</h2><span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>`;
+    seasonDiv.appendChild(header);
+
+    const episodes = document.createElement('div'); episodes.className = 'episodes';
+    const inner = document.createElement('div'); inner.className = 'episodes-inner';
+    // create episode buttons
+    season.episodes.forEach(ep => {
+      const btn = document.createElement('button');
+      btn.className = 'episode-btn';
+      btn.dataset.season = (sIndex+1);
+      btn.dataset.ep = ep.number;
+      // number + optional duration (avoid undefined)
+      const dur = ep.duration ? `<div class="episode-duration">${ep.duration}</div>` : '';
+      btn.innerHTML = `<div class="episode-number">${ep.number}</div>${dur}`;
+      // highlight last/next
+      if(lastWatched){
+        const lwSeason = Number(lastWatched.season), lwEp = Number(lastWatched.episode);
+        if(lwSeason === (sIndex+1) && ep.number === lwEp) btn.classList.add('last-watched');
+        if(lwSeason === (sIndex+1) && ep.number === lwEp + 1) btn.classList.add('next-watch');
+      }
+      btn.addEventListener('click', () => {
+        // increment watch count and store
+        watchedCount++; localStorage.setItem(animeId + '_watch_count', watchedCount);
+        // save last watched
+        localStorage.setItem(animeId + '_lastEpisode', JSON.stringify({ season: sIndex+1, episode: ep.number }));
+        // update UI top and highlights
+        updateLastWatchedUI();
+        // decide which modal to show:
+        // first modal (count===1) -> welcome (non-blocking)
+        // after that, show ad modal every 2 views (i.e., if watchedCount===1 OR watchedCount % 2 === 0 show ad)
+        if(watchedCount === 1){
+          showWelcomeModal(ep.url);
+        } else {
+          // show ad every 2 views
+          if(watchedCount % 2 === 0 && ads.length > 0){
+            const ad = selectAd();
+            showAdModal(ad, ep.url);
+          } else {
+            // directly open episode
+            window.open(ep.url, '_blank');
           }
-        });
+        }
       });
-    }
+      inner.appendChild(btn);
+    });
 
-    function maybeShowModal(url) {
-      let count = parseInt(localStorage.getItem("watch_count") || "0");
-      count++;
-      localStorage.setItem("watch_count", count);
-      if (count === 1 || count % 5 === 0) showModal(url);
-      else window.open(url, "_blank");
-    }
+    episodes.appendChild(inner);
+    seasonDiv.appendChild(episodes);
+    container.appendChild(seasonDiv);
 
-    function showModal(url) {
-      const modal = document.getElementById("modal");
-      const close = document.querySelector(".close-modal");
-      const openBtn = document.getElementById("modal-open");
-      openBtn.href = url;
-      modal.classList.add("active");
-      close.onclick = () => modal.classList.remove("active");
-      openBtn.onclick = () => {
-        modal.classList.remove("active");
-        setTimeout(() => window.open(url, "_blank"), 150);
+    // header toggle with smooth animation
+    header.addEventListener('click', () => {
+      const isOpen = seasonDiv.classList.contains('open');
+      // close others
+      document.querySelectorAll('.season.open').forEach(s => {
+        if(s !== seasonDiv){
+          s.classList.remove('open');
+          const eps = s.querySelector('.episodes');
+          if(eps){ eps.style.maxHeight = '0'; eps.style.opacity = '0'; }
+        }
+      });
+      const eps = seasonDiv.querySelector('.episodes');
+      if(!isOpen){
+        seasonDiv.classList.add('open');
+        // set explicit maxHeight for transition
+        eps.style.maxHeight = eps.scrollHeight + 80 + 'px'; // extra space to avoid clipping
+        eps.style.opacity = '1';
+      } else {
+        // close current smoothly
+        eps.style.maxHeight = eps.scrollHeight + 'px';
+        requestAnimationFrame(()=>{ eps.style.maxHeight = '0'; eps.style.opacity = '0' });
+        seasonDiv.classList.remove('open');
+      }
+    });
+  });
+
+  // helper to update last watched UI and highlight next
+  function updateLastWatchedUI(){
+    let last = null;
+    try{ last = JSON.parse(localStorage.getItem(animeId + '_lastEpisode') || 'null'); }catch(e){ last = null; }
+    const top = $('#last-watched-info');
+    if(last && last.episode != null && last.season != null){
+      top.textContent = `Последняя серия, которую вы посмотрели: ${last.episode}, ${last.season} сезона`;
+    } else top.textContent = '';
+
+    // update classes
+    document.querySelectorAll('.episode-btn').forEach(btn => {
+      btn.classList.remove('last-watched','next-watch');
+      const bSeason = Number(btn.dataset.season), bEp = Number(btn.dataset.ep);
+      if(last){
+        if(bSeason === Number(last.season) && bEp === Number(last.episode)) btn.classList.add('last-watched');
+        if(bSeason === Number(last.season) && bEp === Number(last.episode)+1) btn.classList.add('next-watch');
+      }
+    });
+  }
+}
+
+/* AD selection */
+function selectAd(){
+  if(!ads || ads.length === 0) return null;
+  if(ADS_MODE === 'random'){
+    const idx = Math.floor(Math.random() * ads.length);
+    return ads[idx];
+  } else {
+    // sequential
+    const idx = adsIndex % ads.length;
+    const ad = ads[idx];
+    adsIndex = (adsIndex + 1) % ads.length;
+    localStorage.setItem('ads_index', adsIndex);
+    return ad;
+  }
+}
+
+/* MODALS */
+
+/* show welcome modal (non-blocking immediate) */
+function showWelcomeModal(episodeUrl){
+  const modal = $('#modal');
+  const content = $('#modal-content-container');
+  const actions = $('#modal-actions-area');
+  content.innerHTML = `
+    <div class="modal-header"><div class="modal-title">Спасибо, что с нами!</div></div>
+    <div class="modal-body">Наш сервис полностью бесплатен 💜 Иногда вы можете увидеть рекламу — она помогает нам развиваться. Если хотите поддержать проект — можно донатить звёздами на главной странице бота. Приятного просмотра!</div>
+  `;
+  actions.innerHTML = `<button class="btn secondary" id="modal-close-btn">Закрыть</button>
+                       <button class="btn" id="modal-continue-btn">Продолжить просмотр</button>`;
+  // show modal
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden','false');
+
+  // close handlers - immediate allowed
+  const closeBtn = $('.modal-close'); closeBtn.onclick = () => { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); };
+  $('#modal-close-btn').onclick = () => { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); };
+  $('#modal-continue-btn').onclick = () => {
+    modal.classList.remove('active'); modal.setAttribute('aria-hidden','true');
+    // open episode after tiny delay to ensure modal closed smoothly
+    setTimeout(()=> window.open(episodeUrl, '_blank'), 120);
+  };
+  // clicking backdrop closes
+  modal.onclick = (e) => { if(e.target === modal) { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); } };
+}
+
+/* show ad modal: contains video (click -> advertiser.link), and continue -> episode link
+   ad: { video: "...", link: "..." }  episodeUrl: string
+   NOTE: close and continue are locked for ADS_LOCK_SECONDS
+*/
+function showAdModal(ad, episodeUrl){
+  const modal = $('#modal');
+  const content = $('#modal-content-container');
+  const actions = $('#modal-actions-area');
+
+  // build ad block
+  const videoSrc = ad && ad.video ? ad.video : '';
+  const advertiserLink = ad && ad.link ? ad.link : '#';
+
+  content.innerHTML = `
+    <div class="modal-header"><div class="modal-title">Реклама</div></div>
+    <div class="ad-video" id="ad-video-wrap">
+      <video id="ad-video" playsinline muted autoplay loop preload="metadata">
+        ${videoSrc ? `<source src="${videoSrc}" type="video/mp4">` : ''}
+        <!-- fallback -->
+      </video>
+      <div class="ad-overlay"><div class="ad-cta">Перейти</div></div>
+    </div>
+    <div class="modal-body">Реклама предоставлена партнёром. Нажмите на видео, чтобы перейти на сайт рекламодателя. Кнопка продолжения и закрытия разблокируется через <span id="ad-countdown">${ADS_LOCK_SECONDS}</span>s.</div>
+  `;
+
+  actions.innerHTML = `<button class="btn secondary" id="modal-close-btn" disabled>Закрыть</button>
+                       <button class="btn" id="modal-continue-btn" disabled>Продолжить через ${ADS_LOCK_SECONDS}s</button>`;
+
+  // show modal
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden','false');
+
+  const videoEl = $('#ad-video');
+  const videoWrap = $('#ad-video-wrap');
+  const closeBtn = $('.modal-close');
+
+  // clicking video should redirect to advertiser immediately (this is allowed)
+  videoWrap.onclick = (e) => {
+    // open advertiser link in new tab/window
+    if(advertiserLink && advertiserLink !== '#') window.open(advertiserLink, '_blank');
+  };
+
+  // disable close and continue for ADS_LOCK_SECONDS
+  const closeActionBtn = $('#modal-close-btn');
+  const continueBtn = $('#modal-continue-btn');
+  closeBtn.onclick = null; // disabled during lock
+  closeActionBtn.disabled = true;
+  continueBtn.disabled = true;
+
+  // countdown display and enable after seconds
+  let remaining = ADS_LOCK_SECONDS;
+  const countdownSpan = $('#ad-countdown');
+
+  // ensure UI shows initial number
+  countdownSpan.textContent = remaining;
+  continueBtn.textContent = `Продолжить через ${remaining}s`;
+
+  const timer = setInterval(()=>{
+    remaining--;
+    if(countdownSpan) countdownSpan.textContent = remaining;
+    continueBtn.textContent = remaining>0 ? `Продолжить через ${remaining}s` : 'Продолжить просмотр';
+    if(remaining <= 0){
+      clearInterval(timer);
+      // enable controls
+      closeBtn.onclick = () => { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); };
+      closeActionBtn.disabled = false;
+      continueBtn.disabled = false;
+
+      // bind continue: close and open episode
+      continueBtn.onclick = (e) => {
+        modal.classList.remove('active'); modal.setAttribute('aria-hidden','true');
+        setTimeout(()=> window.open(episodeUrl, '_blank'), 160);
       };
-      modal.onclick = e => { if (e.target === modal) modal.classList.remove("active"); };
     }
+  }, 1000);
 
-    document.addEventListener("DOMContentLoaded", loadAnime);
-  </script>
+  // prevent backdrop clicks from closing before unlocked
+  modal.onclick = (e) => {
+    if(e.target === modal){
+      // only allow if unlocked
+      if(remaining <= 0){
+        modal.classList.remove('active'); modal.setAttribute('aria-hidden','true');
+      }
+    }
+  };
+}
+
+/* start */
+document.addEventListener('DOMContentLoaded', loadAnime);
+</script>
 </body>
 </html>
