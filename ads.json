@@ -1,0 +1,19 @@
+{
+  "ads": [
+    {
+      "video": "https://www.w3schools.com/html/mov_bbb.mp4",
+      "link": "https://example.com/ad1",
+      "title": "Реклама зубных щеток"
+    },
+    {
+      "video": "https://www.w3schools.com/html/movie.mp4",
+      "link": "https://example.com/ad2",
+      "title": "Реклама спортивных добавок"
+    },
+    {
+      "video": "https://www.w3schools.com/html/mov_bbb.mp4",
+      "link": "https://example.com/ad3",
+      "title": "Реклама онлайн-курсов"
+    }
+  ]
+}
