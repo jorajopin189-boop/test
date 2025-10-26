@@ -1,0 +1,50 @@
+{
+  "title": "Наруто: Ураганные хроники",
+  "seasons": [
+    {
+      "name": "Сезон 1: Вступление в ряды ниндзя",
+      "episodes": [
+        { "number": 1, "duration": "23:40", "url": "https://example.com/ep1" },
+        { "number": 2, "duration": "23:15", "url": "https://example.com/ep2" },
+        { "number": 3, "duration": "23:50", "url": "https://example.com/ep3" },
+        { "number": 4, "duration": "23:30", "url": "https://example.com/ep4" },
+        { "number": 5, "duration": "23:45", "url": "https://example.com/ep5" },
+        { "number": 6, "duration": "23:20", "url": "https://example.com/ep6" },
+        { "number": 7, "duration": "23:55", "url": "https://example.com/ep7" },
+        { "number": 8, "duration": "23:25", "url": "https://example.com/ep8" },
+        { "number": 9, "duration": "23:35", "url": "https://example.com/ep9" },
+        { "number": 10, "duration": "23:40", "url": "https://example.com/ep10" }
+      ]
+    },
+    {
+      "name": "Сезон 2: Экзамен на звание тюнина",
+      "episodes": [
+        { "number": 11, "duration": "23:40", "url": "https://example.com/ep11" },
+        { "number": 12, "duration": "23:15", "url": "https://example.com/ep12" },
+        { "number": 13, "duration": "23:50", "url": "https://example.com/ep13" },
+        { "number": 14, "duration": "23:30", "url": "https://example.com/ep14" },
+        { "number": 15, "duration": "23:45", "url": "https://example.com/ep15" },
+        { "number": 16, "duration": "23:20", "url": "https://example.com/ep16" },
+        { "number": 17, "duration": "23:55", "url": "https://example.com/ep17" },
+        { "number": 18, "duration": "23:25", "url": "https://example.com/ep18" },
+        { "number": 19, "duration": "23:35", "url": "https://example.com/ep19" },
+        { "number": 20, "duration": "23:40", "url": "https://example.com/ep20" }
+      ]
+    },
+    {
+      "name": "Сезон 3: Миссия по спасению Саске",
+      "episodes": [
+        { "number": 21, "duration": "23:40", "url": "https://example.com/ep21" },
+        { "number": 22, "duration": "23:15", "url": "https://example.com/ep22" },
+        { "number": 23, "duration": "23:50", "url": "https://example.com/ep23" },
+        { "number": 24, "duration": "23:30", "url": "https://example.com/ep24" },
+        { "number": 25, "duration": "23:45", "url": "https://example.com/ep25" },
+        { "number": 26, "duration": "23:20", "url": "https://example.com/ep26" },
+        { "number": 27, "duration": "23:55", "url": "https://example.com/ep27" },
+        { "number": 28, "duration": "23:25", "url": "https://example.com/ep28" },
+        { "number": 29, "duration": "23:35", "url": "https://example.com/ep29" },
+        { "number": 30, "duration": "23:40", "url": "https://example.com/ep30" }
+      ]
+    }
+  ]
+}
