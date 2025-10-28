@@ -143,14 +143,15 @@ body{
 .ad-overlay{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-end;padding:10px;pointer-events:none}
 .ad-cta{pointer-events:auto;background:rgba(0,0,0,0.45);color:white;padding:6px 10px;border-radius:8px;font-weight:600;margin-left:8px}
 
-/* buttons area: single CTA */
+/* buttons area: single CTA with ring on the right */
 .modal-actions{
   display:flex;gap:12px;justify-content:center;align-items:center;padding-top:6px;
 }
 
-/* circular progress sizing */
-.count-ring { width:44px; height:44px; display:inline-block; vertical-align:middle; margin-right:8px; }
-.count-number { position:absolute; font-weight:700; font-size:0.82rem; color:var(--text-primary); left:50%; top:50%; transform:translate(-50%,-50%); pointer-events:none; }
+/* circular progress container */
+.count-container { position:relative; width:44px; height:44px; display:inline-block; margin-left:10px; }
+.count-ring { width:44px; height:44px; display:block; }
+.count-number { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.82rem; color:var(--text-primary); pointer-events:none; }
 
 /* CTA button style + hover animation */
 .btn-cta{
@@ -161,13 +162,13 @@ body{
 /* hover gentle jump */
 .btn-cta:not([disabled]):hover{transform:translateY(-6px) scale(1.02);box-shadow:0 14px 30px rgba(124,58,237,0.22);}
 
-/* pulse animation when unlocked (мягче) */
+/* pulse animation when unlocked (softer & slower) */
 @keyframes pulseBtn {
   0%{transform:scale(1)}
-  50%{transform:scale(1.03)}
+  50%{transform:scale(1.02)}
   100%{transform:scale(1)}
 }
-.btn-cta.pulse{animation: pulseBtn 1.5s ease-in-out infinite}
+.btn-cta.pulse{animation: pulseBtn 2s ease-in-out infinite}
 
 /* close small */
 .modal-close{position:absolute;top:12px;right:12px;background:transparent;border:none;color:var(--text-secondary);cursor:pointer;font-size:1.05rem;opacity:.95;transition:transform .18s var(--ease)}
@@ -211,7 +212,6 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-size:0.9rem;pad
 </div>
 
 <script>
-// код JS полностью оставлен как раньше, только выравнивание count-number и плавная пульсация
 /* CONFIG */
 const ADS_MODE = 'sequential';
 const AD_SOURCE = 'ads.json';
@@ -370,7 +370,6 @@ function selectAd(){
 
 /* -- Modals -- */
 
-/* welcome modal unchanged (immediate close allowed) */
 function showWelcomeModal(episodeUrl){
   const modal = $('#modal');
   const content = $('#modal-content-container');
@@ -393,7 +392,6 @@ function showWelcomeModal(episodeUrl){
   modal.onclick = (e) => { if(e.target === modal) { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); } };
 }
 
-/* show ad modal with circular countdown and pulse when unlocked */
 function showAdModal(ad, episodeUrl){
   const modal = $('#modal');
   const content = $('#modal-content-container');
@@ -438,21 +436,23 @@ function showAdModal(ad, episodeUrl){
     </div>
   `;
 
+  // actions: CTA (left) + ring (right)
   actions.innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px;position:relative">
-      <svg class="count-ring" viewBox="0 0 44 44" id="count-svg">
-        <g transform="rotate(-90 22 22)">
-          <circle cx="22" cy="22" r="18" stroke="rgba(255,255,255,0.08)" stroke-width="4" fill="none"></circle>
-          <circle id="count-progress" cx="22" cy="22" r="18" stroke="url(#grad1)" stroke-width="4" stroke-linecap="round" fill="none" stroke-dasharray="113.097" stroke-dashoffset="113.097"></circle>
-        </g>
-      </svg>
-      <div class="count-number" id="count-number">10</div>
-      <button class="btn-cta" id="modal-continue-btn" disabled><span id="continue-text">Продолжить через 10s</span></button>
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="btn-cta" id="modal-continue-btn" disabled><span id="continue-text">Продолжить через ${ADS_LOCK_SECONDS}s</span></button>
+      <div class="count-container" aria-hidden="true">
+        <svg class="count-ring" viewBox="0 0 44 44" id="count-svg">
+          <g transform="rotate(-90 22 22)">
+            <circle cx="22" cy="22" r="18" stroke="rgba(255,255,255,0.08)" stroke-width="4" fill="none"></circle>
+            <circle id="count-progress" cx="22" cy="22" r="18" stroke="url(#grad1)" stroke-width="4" stroke-linecap="round" fill="none" stroke-dasharray="113.097" stroke-dashoffset="113.097"></circle>
+          </g>
+        </svg>
+        <div class="count-number" id="count-number">${ADS_LOCK_SECONDS}</div>
+      </div>
     </div>
   `;
 
-  modal.classList.add('active');
-  modal.setAttribute('aria-hidden','false');
+  modal.classList.add('active'); modal.setAttribute('aria-hidden','false');
 
   const closeBtn = $('.modal-close');
   closeBtn.classList.add('disabled');
