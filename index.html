@@ -211,6 +211,7 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-size:0.9rem;pad
 const ADS_MODE = 'sequential';
 const AD_SOURCE = 'ads.json';
 const ADS_LOCK_SECONDS = 10;
+const STATS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw2Jz7yUm6nB4e_6-JZ0iCWHRWI01thgTa4hKRyI-_x-7RGQHzj_xpNi5dNBzvVcCL1/exec';
 
 /* Helpers */
 function $(sel, ctx=document){ return ctx.querySelector(sel) }
@@ -220,40 +221,6 @@ function $all(sel, ctx=document){ return Array.from((ctx||document).querySelecto
 let animeId = null;
 let ads = [];
 let adsIndex = parseInt(localStorage.getItem('ads_index')||'0', 10) || 0;
-
-/* --- Статистика --- */
-function loadStats() {
-  let stats = {};
-  try { stats = JSON.parse(localStorage.getItem('stats')||'{}'); } catch(e){ stats = {}; }
-  if(!stats.animeStats) stats.animeStats = {};
-  if(!stats.adStats) stats.adStats = {};
-  if(!stats.dailyStats) stats.dailyStats = {};
-  return stats;
-}
-function saveStats(stats){ localStorage.setItem('stats', JSON.stringify(stats)); }
-function trackAnimeView(animeId, seasonNum, episodeNum){
-  const stats = loadStats();
-  const today = new Date().toISOString().slice(0,10);
-  if(!stats.animeStats[animeId]) stats.animeStats[animeId] = { title: animeId, totalViews:0, episodeViews:{} };
-  stats.animeStats[animeId].totalViews++;
-  const epKey = `S${seasonNum}E${episodeNum}`;
-  stats.animeStats[animeId].episodeViews[epKey] = (stats.animeStats[animeId].episodeViews[epKey]||0)+1;
-  if(!stats.dailyStats[today]) stats.dailyStats[today] = { animeViews:{}, adViews:{}, adClicks:{} };
-  stats.dailyStats[today].animeViews[animeId] = (stats.dailyStats[today].animeViews[animeId]||0)+1;
-  saveStats(stats);
-}
-function trackAd(adId, clicked=false){
-  const stats = loadStats();
-  const today = new Date().toISOString().slice(0,10);
-  if(!stats.adStats[adId]) stats.adStats[adId] = { shows:0, clicks:0, CTR:0 };
-  stats.adStats[adId].shows++;
-  if(clicked) stats.adStats[adId].clicks++;
-  stats.adStats[adId].CTR = stats.adStats[adId].shows ? (stats.adStats[adId].clicks / stats.adStats[adId].shows) : 0;
-  if(!stats.dailyStats[today]) stats.dailyStats[today] = { animeViews:{}, adViews:{}, adClicks:{} };
-  stats.dailyStats[today].adViews[adId] = (stats.dailyStats[today].adViews[adId]||0)+1;
-  if(clicked) stats.dailyStats[today].adClicks[adId] = (stats.dailyStats[today].adClicks[adId]||0)+1;
-  saveStats(stats);
-}
 
 /* load ads.json */
 async function loadAds(){
@@ -266,6 +233,16 @@ async function loadAds(){
     console.warn('ads load failed', e);
     ads = [];
   }
+}
+
+/* send anonymous stats */
+function sendStat(eventType, data={}){
+  const payload = { animeId, eventType, timestamp: Date.now(), ...data };
+  fetch(STATS_ENDPOINT,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).catch(console.warn);
 }
 
 /* main load */
@@ -323,8 +300,8 @@ function renderAnime(data){
       btn.addEventListener('click', () => {
         watchedCount++; localStorage.setItem(animeId + '_watch_count', watchedCount);
         localStorage.setItem(animeId + '_lastEpisode', JSON.stringify({ season: sIndex+1, episode: ep.number }));
-        trackAnimeView(animeId, sIndex+1, ep.number);
         updateLastWatchedUI();
+        sendStat('episode_watched',{ season: sIndex+1, episode: ep.number });
         if(watchedCount === 1){
           showWelcomeModal(ep.url);
         } else {
@@ -468,8 +445,6 @@ function showAdModal(ad, episodeUrl){
     </div>
   `;
 
-  trackAd(ad.id);
-
   // single centered CTA at bottom
   actions.innerHTML = `<div style="display:flex;justify-content:center;width:100%"><button class="btn-cta" id="modal-continue-btn" disabled>Продолжить через ${ADS_LOCK_SECONDS}s</button></div>`;
 
@@ -485,20 +460,14 @@ function showAdModal(ad, episodeUrl){
   const continueBtn = $('#modal-continue-btn');
 
   // clicking video redirects to advertiser immediately
-  videoWrap.onclick = () => { 
-    if(advertiserLink && advertiserLink !== '#') {
-      trackAd(ad.id, true);
-      window.open(advertiserLink, '_blank'); 
-    }
-  };
+  videoWrap.onclick = () => { if(advertiserLink && advertiserLink !== '#') {
+    sendStat('ad_clicked',{ adTitle }); window.open(advertiserLink, '_blank');
+  }};
   if(videoEl){
     videoEl.addEventListener('keydown', (ev) => {
       if(ev.key === 'Enter' || ev.key === ' '){
         ev.preventDefault();
-        if(advertiserLink && advertiserLink !== '#') {
-          trackAd(ad.id, true);
-          window.open(advertiserLink, '_blank');
-        }
+        if(advertiserLink && advertiserLink !== '#') { sendStat('ad_clicked',{ adTitle }); window.open(advertiserLink, '_blank'); }
       }
     });
   }
@@ -524,6 +493,7 @@ function showAdModal(ad, episodeUrl){
       // subtle pulse to draw attention (soft & slow)
       continueBtn.classList.add('pulse');
       continueBtn.onclick = () => {
+        sendStat('ad_watched',{ adTitle }); 
         modal.classList.remove('active'); modal.setAttribute('aria-hidden','true');
         setTimeout(()=> window.open(episodeUrl, '_blank'), 160);
       };
@@ -532,6 +502,7 @@ function showAdModal(ad, episodeUrl){
     }
   };
 
+  // initial tick and interval
   tick();
   const timerId = setInterval(tick, 250);
 }
