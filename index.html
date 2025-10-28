@@ -143,32 +143,27 @@ body{
 .ad-overlay{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-end;padding:10px;pointer-events:none}
 .ad-cta{pointer-events:auto;background:rgba(0,0,0,0.45);color:white;padding:6px 10px;border-radius:8px;font-weight:600;margin-left:8px}
 
-/* buttons area: single CTA with ring on the right */
+/* buttons area: single CTA centered at bottom */
 .modal-actions{
   display:flex;gap:12px;justify-content:center;align-items:center;padding-top:6px;
 }
 
-/* circular progress container */
-.count-container { position:relative; width:44px; height:44px; display:inline-block; margin-left:10px; }
-.count-ring { width:44px; height:44px; display:block; }
-.count-number { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.82rem; color:var(--text-primary); pointer-events:none; }
-
-/* CTA button style + hover animation */
+/* CTA button style + hover animation (very subtle now) */
 .btn-cta{
   display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:#fff;border:none;cursor:pointer;font-weight:800;font-size:0.98rem;box-shadow:0 8px 20px rgba(124,58,237,0.15);transform-origin:center;
-  transition:transform .18s var(--ease), box-shadow .18s var(--ease), filter .18s var(--ease);
+  transition:transform .32s var(--ease), box-shadow .32s var(--ease), filter .32s var(--ease);
 }
 .btn-cta[disabled]{opacity:.6;cursor:default;filter:grayscale(.08)}
-/* hover gentle jump */
-.btn-cta:not([disabled]):hover{transform:translateY(-6px) scale(1.02);box-shadow:0 14px 30px rgba(124,58,237,0.22);}
+/* hover very gentle */
+.btn-cta:not([disabled]):hover{transform:translateY(-2px) scale(1.005);box-shadow:0 10px 22px rgba(124,58,237,0.14);}
 
-/* pulse animation when unlocked (softer & slower) */
+/* pulse animation when unlocked (very soft & slow) */
 @keyframes pulseBtn {
   0%{transform:scale(1)}
-  50%{transform:scale(1.02)}
+  50%{transform:scale(1.01)}
   100%{transform:scale(1)}
 }
-.btn-cta.pulse{animation: pulseBtn 2s ease-in-out infinite}
+.btn-cta.pulse{animation: pulseBtn 3s ease-in-out infinite}
 
 /* close small */
 .modal-close{position:absolute;top:12px;right:12px;background:transparent;border:none;color:var(--text-secondary);cursor:pointer;font-size:1.05rem;opacity:.95;transition:transform .18s var(--ease)}
@@ -370,6 +365,7 @@ function selectAd(){
 
 /* -- Modals -- */
 
+/* Welcome modal (unchanged) */
 function showWelcomeModal(episodeUrl){
   const modal = $('#modal');
   const content = $('#modal-content-container');
@@ -378,7 +374,7 @@ function showWelcomeModal(episodeUrl){
     <div class="modal-header"><div class="modal-title">Спасибо, что с нами!</div></div>
     <div class="modal-body">Наш сервис полностью бесплатен 💜 Иногда вы можете увидеть рекламу — она помогает нам развиваться. Если хотите поддержать проект — можно донатить звёздами на главной странице бота. Приятного просмотра!</div>
   `;
-  actions.innerHTML = `<button class="btn-cta" id="modal-continue-btn">Продолжить просмотр</button>`;
+  actions.innerHTML = `<div style="display:flex;justify-content:center;width:100%"><button class="btn-cta" id="modal-continue-btn">Продолжить просмотр</button></div>`;
   modal.classList.add('active'); modal.setAttribute('aria-hidden','false');
 
   const closeBtn = $('.modal-close');
@@ -392,6 +388,7 @@ function showWelcomeModal(episodeUrl){
   modal.onclick = (e) => { if(e.target === modal) { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); } };
 }
 
+/* Ad modal: no circular indicator, button centered bottom, button locked for ADS_LOCK_SECONDS */
 function showAdModal(ad, episodeUrl){
   const modal = $('#modal');
   const content = $('#modal-content-container');
@@ -432,28 +429,16 @@ function showAdModal(ad, episodeUrl){
 
     <div class="modal-body">
       <div class="ad-desc">${splitDesc(adDesc)}</div>
-      <div style="color:var(--text-secondary);font-size:0.92rem">Кнопка продолжения будет доступна по таймеру.</div>
+      <div style="color:var(--text-secondary);font-size:0.92rem">Кнопка продолжения разблокируется по таймеру.</div>
     </div>
   `;
 
-  // actions: CTA (left) + ring (right)
-  actions.innerHTML = `
-    <div style="display:flex;align-items:center;gap:12px">
-      <button class="btn-cta" id="modal-continue-btn" disabled><span id="continue-text">Продолжить через ${ADS_LOCK_SECONDS}s</span></button>
-      <div class="count-container" aria-hidden="true">
-        <svg class="count-ring" viewBox="0 0 44 44" id="count-svg">
-          <g transform="rotate(-90 22 22)">
-            <circle cx="22" cy="22" r="18" stroke="rgba(255,255,255,0.08)" stroke-width="4" fill="none"></circle>
-            <circle id="count-progress" cx="22" cy="22" r="18" stroke="url(#grad1)" stroke-width="4" stroke-linecap="round" fill="none" stroke-dasharray="113.097" stroke-dashoffset="113.097"></circle>
-          </g>
-        </svg>
-        <div class="count-number" id="count-number">${ADS_LOCK_SECONDS}</div>
-      </div>
-    </div>
-  `;
+  // single centered CTA at bottom
+  actions.innerHTML = `<div style="display:flex;justify-content:center;width:100%"><button class="btn-cta" id="modal-continue-btn" disabled>Продолжить через ${ADS_LOCK_SECONDS}s</button></div>`;
 
   modal.classList.add('active'); modal.setAttribute('aria-hidden','false');
 
+  // disable top-right close until unlocked
   const closeBtn = $('.modal-close');
   closeBtn.classList.add('disabled');
   closeBtn.onclick = null;
@@ -461,10 +446,8 @@ function showAdModal(ad, episodeUrl){
   const videoWrap = $('#ad-video-wrap');
   const videoEl = $('#ad-video');
   const continueBtn = $('#modal-continue-btn');
-  const continueText = $('#continue-text');
-  const countNumber = $('#count-number');
-  const progressCircle = $('#count-progress');
 
+  // clicking video redirects to advertiser immediately
   videoWrap.onclick = () => { if(advertiserLink && advertiserLink !== '#') window.open(advertiserLink, '_blank'); };
   if(videoEl){
     videoEl.addEventListener('keydown', (ev) => {
@@ -475,62 +458,36 @@ function showAdModal(ad, episodeUrl){
     });
   }
 
-  const r = 18;
-  const circumference = 2 * Math.PI * r;
-  progressCircle.style.strokeDasharray = `${circumference}`;
-  progressCircle.style.strokeDashoffset = `${circumference}`;
-
-  (function addGrad(){
-    const svg = $('#count-svg');
-    if(!svg) return;
-    const ns = "http://www.w3.org/2000/svg";
-    if(svg.querySelector('#grad1')) return;
-    const defs = document.createElementNS(ns,'defs');
-    const lin = document.createElementNS(ns,'linearGradient');
-    lin.setAttribute('id','grad1');
-    lin.setAttribute('x1','0%'); lin.setAttribute('y1','0%'); lin.setAttribute('x2','100%'); lin.setAttribute('y2','0%');
-    const stop1 = document.createElementNS(ns,'stop'); stop1.setAttribute('offset','0%'); stop1.setAttribute('stop-color','#7c3aed');
-    const stop2 = document.createElementNS(ns,'stop'); stop2.setAttribute('offset','100%'); stop2.setAttribute('stop-color','#a78bfa');
-    lin.appendChild(stop1); lin.appendChild(stop2);
-    defs.appendChild(lin);
-    svg.prepend(defs);
-  })();
-
+  // countdown locking logic (no circle)
   let remaining = ADS_LOCK_SECONDS;
-  countNumber.textContent = remaining;
-  continueText.textContent = `Продолжить через ${remaining}s`;
-  progressCircle.style.transition = 'stroke-dashoffset 0.4s linear';
-  progressCircle.style.strokeDashoffset = `${circumference}`;
-
+  continueBtn.textContent = `Продолжить через ${remaining}s`;
   const start = Date.now();
   const endTime = start + ADS_LOCK_SECONDS * 1000;
 
   const tick = () => {
     const now = Date.now();
-    const elapsed = Math.min(now - start, ADS_LOCK_SECONDS * 1000);
-    const frac = elapsed / (ADS_LOCK_SECONDS * 1000);
-    const offset = Math.max(0, circumference * (1 - frac));
-    progressCircle.style.strokeDashoffset = offset;
     const secLeft = Math.max(0, Math.ceil((endTime - now) / 1000));
-    countNumber.textContent = secLeft;
-    continueText.textContent = secLeft > 0 ? `Продолжить через ${secLeft}s` : 'Продолжить просмотр';
+    remaining = secLeft;
+    continueBtn.textContent = secLeft > 0 ? `Продолжить через ${secLeft}s` : 'Продолжить просмотр';
     if(now >= endTime){
       clearInterval(timerId);
-      progressCircle.style.strokeDashoffset = 0;
-      countNumber.textContent = 0;
-      continueText.textContent = 'Продолжить просмотр';
+      continueBtn.textContent = 'Продолжить просмотр';
       continueBtn.disabled = false;
+      // enable top-right close
       closeBtn.classList.remove('disabled');
       closeBtn.onclick = () => { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); };
+      // subtle pulse to draw attention (soft & slow)
       continueBtn.classList.add('pulse');
       continueBtn.onclick = () => {
         modal.classList.remove('active'); modal.setAttribute('aria-hidden','true');
         setTimeout(()=> window.open(episodeUrl, '_blank'), 160);
       };
+      // allow backdrop click now
       modal.onclick = (e) => { if(e.target === modal) { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); } };
     }
   };
 
+  // initial tick and interval
   tick();
   const timerId = setInterval(tick, 250);
 }
