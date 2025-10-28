@@ -27,7 +27,7 @@
         {"number": 21, "url": "https://t.me/ClasslessHeroIdontneedtho/6?t=0"},
         {"number": 22, "url": "https://t.me/ClasslessHeroIdontneedtho/6?t=0"},
         {"number": 23, "url": "https://t.me/ClasslessHeroIdontneedtho/6?t=0"},
-        {"number": 24, "url": "https://t.me/ClasslessHeroIdontneedtho/6"}
+        {"number": 24, "url": "https://t.me/ClasslessHeroIdontneedtho/6"},
         {"number": 25, "url": "https://t.me/ClasslessHeroIdontneedtho/6"},
         {"number": 26, "url": "https://t.me/ClasslessHeroIdontneedtho/6?t=0"},
         {"number": 27, "url": "https://t.me/ClasslessHeroIdontneedtho/6?t=0"},
@@ -38,16 +38,12 @@
         {"number": 32, "url": "https://t.me/ClasslessHeroIdontneedtho/6?t=0"},
         {"number": 33, "url": "https://t.me/ClasslessHeroIdontneedtho/6?t=0"},
         {"number": 34, "url": "https://t.me/ClasslessHeroIdontneedtho/6"}
-        {"number": 32, "url": "https://t.me/ClasslessHeroIdontneedtho/6?t=0"},
-        {"number": 33, "url": "https://t.me/ClasslessHeroIdontneedtho/6?t=0"}, 
-        
       ]
     },
     {
       "name": "Сезон 2",
       "episodes": [
-        {"number": 1, "url": "https://ok.ru/videoembed/2222222221"},
-
+        {"number": 1, "url": "https://ok.ru/videoembed/2222222221"}
       ]
     },
     {
@@ -56,9 +52,8 @@
         {"number": 1, "url": "https://ok.ru/videoembed/3333333331"},
         {"number": 2, "url": "https://ok.ru/videoembed/3333333332"},
         {"number": 3, "url": "https://ok.ru/videoembed/3333333333"},
-        {"number": 4, "url": "https://ok.ru/videoembed/3333333334"},
-
-       ]
+        {"number": 4, "url": "https://ok.ru/videoembed/3333333334"}
+      ]
     },
     {
       "name": "Сезон 4",
@@ -75,14 +70,9 @@
         {"number": 10, "url": "https://ok.ru/videoembed/1111111120"},
         {"number": 11, "url": "https://ok.ru/videoembed/1111111121"},
         {"number": 12, "url": "https://ok.ru/videoembed/1111111122"},
-        {"number": 13, "url": "https://ok.ru/videoembed/1111111123"},
-     
+        {"number": 13, "url": "https://ok.ru/videoembed/1111111123"}
       ]
     }
   ]
 }
-
-
-
-
 
