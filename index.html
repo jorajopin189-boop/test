@@ -72,14 +72,14 @@ body{
   display:grid;
   grid-template-columns:repeat(4,1fr);
   gap:12px;
-  padding:0 20px;
+  padding:16px 20px 0;
   max-height:0;
   overflow:hidden;
   opacity:0;
-  transition:max-height 0.5s var(--ease), opacity 0.35s var(--ease), padding 0.25s var(--ease);
+  transition:max-height 0.5s var(--ease), opacity 0.35s var(--ease);
 }
 .season.open .episodes{
-  padding:16px 20px 22px;
+  max-height:2000px; /* big enough to fit all */
   opacity:1;
 }
 
@@ -180,6 +180,12 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-size:0.9rem;pad
     <div id="modal-actions-area" class="modal-actions" style="padding-bottom:6px"></div>
   </div>
 </div>
+
+<script>
+// JS логика осталась без изменений (с учетом плавного раскрытия/сворачивания и 4 кнопок в ряд)
+</script>
+</body>
+</html>
 
 <script>
 /* CONFIG:
@@ -491,3 +497,4 @@ document.addEventListener('DOMContentLoaded', loadAnime);
 </script>
 </body>
 </html>
+
