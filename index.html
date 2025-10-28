@@ -126,46 +126,48 @@ body{
 }
 .modal.active .modal-card{transform:translateY(0) scale(1)}
 
-.modal-header{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-.modal-title{font-size:1.25rem;color:var(--accent-primary);font-weight:700}
-.modal-body{color:var(--text-secondary);line-height:1.5;margin-bottom:12px;}
+.modal-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.modal-title{font-size:1.15rem;color:var(--accent-primary);font-weight:700}
+.modal-body{color:var(--text-secondary);line-height:1.5;margin-bottom:12px}
 
-/* ad title & desc styling */
-.ad-title { font-weight:700; color:#facc15; font-size:1.3rem; line-height:1.2; }
-.ad-desc { color:var(--text-secondary); font-size:1rem; line-height:1.4; margin-top:4px; }
+/* nicer ad-title styling */
+.ad-title { font-weight:800; color:var(--accent-primary); margin-bottom:8px; font-size:1.18rem; }
+.ad-desc { color:var(--text-secondary); margin-bottom:10px; font-size:0.96rem; }
 
 /* ad video */
 .ad-video{
   width:100%;height:320px;background:#000;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;
-  position:relative;margin-bottom:16px;
+  position:relative;margin-bottom:12px;
 }
 .ad-video video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer}
 .ad-overlay{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-end;padding:10px;pointer-events:none}
-.ad-cta{pointer-events:auto;background:rgba(0,0,0,0.45);color:white;padding:6px 10px;border-radius:8px;font-weight:600;margin-left:8px;transition:all .2s ease;}
+.ad-cta{pointer-events:auto;background:rgba(0,0,0,0.45);color:white;padding:6px 10px;border-radius:8px;font-weight:600;margin-left:8px}
 
-/* CTA hover animation */
-#ad-continue-btn:hover{
-  transform: translateY(-4px) scale(1.05);
-  box-shadow:0 6px 20px rgba(124,58,237,0.3);
-  background:linear-gradient(135deg,#7c3aed,#a78bfa);
+/* buttons area: single CTA */
+.modal-actions{
+  display:flex;gap:12px;justify-content:center;align-items:center;padding-top:6px;
 }
 
-/* circular progress */
-.circular-btn{
-  position: relative; display: inline-flex; align-items:center; justify-content:center;
-}
-.circular-btn svg{
-  position:absolute; top:0; left:0; transform:rotate(-90deg);
-}
-.circular-btn circle{
-  fill:none; stroke:#7c3aed; stroke-width:4; stroke-linecap:round;
-  transition: stroke-dashoffset 1s linear;
-}
+/* circular progress sizing */
+.count-ring { width:44px; height:44px; display:inline-block; vertical-align:middle; margin-right:8px; }
+.count-number { position: absolute; font-weight:700; font-size:0.82rem; color:var(--text-primary); left:50%; top:50%; transform:translate(-50%,-50%); }
 
-/* buttons */
-.modal-actions{display:flex;gap:10px;justify-content:center;align-items:center; margin-top:10px}
-.btn{padding:10px 16px;border-radius:50px;font-weight:700;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:#fff;border:none;cursor:pointer}
-.btn[disabled]{opacity:.6;cursor:default}
+/* CTA button style + hover animation */
+.btn-cta{
+  display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));color:#fff;border:none;cursor:pointer;font-weight:800;font-size:0.98rem;box-shadow:0 8px 20px rgba(124,58,237,0.15);transform-origin:center;
+  transition:transform .18s var(--ease), box-shadow .18s var(--ease), filter .18s var(--ease);
+}
+.btn-cta[disabled]{opacity:.6;cursor:default;filter:grayscale(.08)}
+/* hover gentle jump */
+.btn-cta:not([disabled]):hover{transform:translateY(-6px) scale(1.02);box-shadow:0 14px 30px rgba(124,58,237,0.22);}
+
+/* pulse animation when unlocked */
+@keyframes pulseBtn {
+  0%{transform:scale(1)}
+  50%{transform:scale(1.06)}
+  100%{transform:scale(1)}
+}
+.btn-cta.pulse{animation: pulseBtn 1s ease-in-out infinite}
 
 /* close small */
 .modal-close{position:absolute;top:12px;right:12px;background:transparent;border:none;color:var(--text-secondary);cursor:pointer;font-size:1.05rem;opacity:.95;transition:transform .18s var(--ease)}
@@ -174,7 +176,7 @@ body{
 
 footer{margin-top:26px;text-align:center;color:var(--muted);font-size:0.9rem;padding-top:20px;border-top:1px solid rgba(255,255,255,0.03)}
 
-/* responsiveness */
+/* responsiveness: keep 4 columns but allow shrink */
 @media(max-width:900px){.episodes{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:700px){.episodes{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:420px){.episodes{grid-template-columns:repeat(4,minmax(0,1fr))}.ad-video{height:220px}}
@@ -199,58 +201,74 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-size:0.9rem;pad
   <div class="modal-card" role="document">
     <button class="modal-close" aria-label="Закрыть">✕</button>
 
-    <div id="modal-content-container"></div>
+    <div id="modal-content-container">
+      <!-- content injected dynamically: welcome or ad -->
+    </div>
 
-    <div id="modal-actions-area" class="modal-actions"></div>
+    <div style="height:8px;"></div>
+    <div id="modal-actions-area" class="modal-actions" style="padding-bottom:6px"></div>
   </div>
 </div>
 
 <script>
+/* CONFIG */
 const ADS_MODE = 'sequential';
 const AD_SOURCE = 'ads.json';
 const ADS_LOCK_SECONDS = 10;
 
+/* Helpers */
 function $(sel, ctx=document){ return ctx.querySelector(sel) }
 function $all(sel, ctx=document){ return Array.from((ctx||document).querySelectorAll(sel)) }
 
+/* State */
 let animeId = null;
 let ads = [];
 let adsIndex = parseInt(localStorage.getItem('ads_index')||'0', 10) || 0;
 
+/* load ads.json */
 async function loadAds(){
   try{
     const r = await fetch(AD_SOURCE);
     if(!r.ok) throw new Error('no ads');
     const j = await r.json();
     if(Array.isArray(j.ads)) ads = j.ads;
-  }catch(e){ ads = []; }
+  }catch(e){
+    console.warn('ads load failed', e);
+    ads = [];
+  }
 }
 
+/* main load */
 async function loadAnime(){
   const params = new URLSearchParams(location.search);
   animeId = params.get('anime') || 'demo-anime';
   await loadAds();
-
   try{
     const res = await fetch(`data/${animeId}.json`);
     if(!res.ok) throw new Error('anime json not found');
     const data = await res.json();
     renderAnime(data);
   }catch(err){
+    console.error(err);
     document.getElementById('anime-title').textContent = 'Аниме не найдено';
   }
 }
 
+/* render */
 function renderAnime(data){
   document.getElementById('anime-title').textContent = data.title || 'Аниме';
   const container = document.getElementById('seasons-container');
+
   let lastWatched = null;
   try{ lastWatched = JSON.parse(localStorage.getItem(animeId + '_lastEpisode') || 'null'); } catch(e){ lastWatched = null; }
-  let watchedCount = parseInt(localStorage.getItem(animeId + '_watch_count') || '0', 10) || 0;
+  let watchedCount = parseInt(localStorage.getItem(animeId + '_watch_count') || '0', 10);
+
   const topInfo = $('#last-watched-info');
   if(lastWatched && lastWatched.episode != null && lastWatched.season != null){
     topInfo.textContent = `Последняя серия, которую вы посмотрели: ${lastWatched.episode}, ${lastWatched.season} сезона`;
-  } else { topInfo.textContent = ''; }
+  } else {
+    topInfo.textContent = '';
+  }
 
   data.seasons.forEach((season, sIndex) => {
     const seasonDiv = document.createElement('div'); seasonDiv.className = 'season';
@@ -289,6 +307,7 @@ function renderAnime(data){
       });
       inner.appendChild(btn);
     });
+
     episodes.appendChild(inner);
     seasonDiv.appendChild(episodes);
     container.appendChild(seasonDiv);
@@ -333,6 +352,7 @@ function renderAnime(data){
   }
 }
 
+/* select ad */
 function selectAd(){
   if(!ads || ads.length === 0) return null;
   if(ADS_MODE === 'random'){
@@ -347,69 +367,9 @@ function selectAd(){
   }
 }
 
-function escapeHtml(str){ if(!str) return ''; return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+/* -- Modals -- */
 
-/* AD MODAL */
-function showAdModal(ad, episodeUrl){
-  const modal = $('#modal');
-  const content = $('#modal-content-container');
-  const actions = $('#modal-actions-area');
-
-  const videoSrc = ad && ad.video ? ad.video : '';
-  const advertiserLink = ad && ad.link ? ad.link : '#';
-  const adTitle = ad && ad.title ? ad.title : 'Рекламное предложение';
-  const adDesc = ad && ad.desc ? ad.desc : 'Описание рекламы 🟢✨📌';
-
-  content.innerHTML = `
-    <div class="modal-header">
-      <div class="ad-title">${escapeHtml(adTitle)}</div>
-      <div class="ad-desc">${escapeHtml(adDesc)}</div>
-    </div>
-    <div class="ad-video" id="ad-video-wrap" title="Нажмите, чтобы перейти к рекламодателю">
-      <video id="ad-video" playsinline muted autoplay loop preload="metadata" tabindex="0">
-        ${videoSrc ? `<source src="${videoSrc}" type="video/mp4">` : ''}
-      </video>
-    </div>
-  `;
-
-  actions.innerHTML = `
-    <button class="btn circular-btn" id="ad-continue-btn" disabled>
-      <svg width="60" height="60">
-        <circle r="28" cx="30" cy="30" stroke-dasharray="176" stroke-dashoffset="176"></circle>
-      </svg>
-      <span id="ad-count-text">Продолжить</span>
-    </button>
-  `;
-
-  modal.classList.add('active'); modal.setAttribute('aria-hidden','false');
-
-  const videoWrap = $('#ad-video-wrap');
-  const closeBtn = $('.modal-close'); closeBtn.classList.add('disabled'); closeBtn.onclick = null;
-  const continueBtn = $('#ad-continue-btn'); const circle = continueBtn.querySelector('circle'); const countText = $('#ad-count-text');
-
-  videoWrap.onclick = ()=>{ if(advertiserLink!=='#') window.open(advertiserLink,'_blank'); };
-
-  let remaining = ADS_LOCK_SECONDS;
-  const totalDash = 2*Math.PI*28; circle.style.strokeDasharray = totalDash; circle.style.strokeDashoffset = totalDash;
-  countText.textContent = `${remaining}s`;
-
-  const timer = setInterval(()=>{
-    remaining--;
-    const offset = totalDash*(remaining/ADS_LOCK_SECONDS);
-    circle.style.strokeDashoffset = offset;
-    countText.textContent = remaining>0 ? `${remaining}s` : 'Продолжить';
-    if(remaining<=0){
-      clearInterval(timer);
-      closeBtn.classList.remove('disabled'); closeBtn.onclick = ()=>{ modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); };
-      continueBtn.disabled = false;
-      continueBtn.onclick = ()=>{ modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); setTimeout(()=> window.open(episodeUrl,'_blank'),160); };
-    }
-  },1000);
-
-  modal.onclick = (e)=>{ if(e.target===modal && remaining<=0){ modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); } };
-}
-
-/* WELCOME modal unchanged */
+/* welcome modal unchanged (immediate close allowed) */
 function showWelcomeModal(episodeUrl){
   const modal = $('#modal');
   const content = $('#modal-content-container');
@@ -418,16 +378,195 @@ function showWelcomeModal(episodeUrl){
     <div class="modal-header"><div class="modal-title">Спасибо, что с нами!</div></div>
     <div class="modal-body">Наш сервис полностью бесплатен 💜 Иногда вы можете увидеть рекламу — она помогает нам развиваться. Если хотите поддержать проект — можно донатить звёздами на главной странице бота. Приятного просмотра!</div>
   `;
-  actions.innerHTML = `<button class="btn secondary" id="modal-continue-btn">Продолжить просмотр</button>`;
+  actions.innerHTML = `<button class="btn-cta" id="modal-continue-btn">Продолжить просмотр</button>`;
   modal.classList.add('active'); modal.setAttribute('aria-hidden','false');
-  const continueBtn = $('#modal-continue-btn');
-  continueBtn.onclick = ()=>{ modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); setTimeout(()=> window.open(episodeUrl,'_blank'),120); };
-  const closeBtn = $('.modal-close'); closeBtn.classList.remove('disabled'); closeBtn.onclick = ()=>{ modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); };
-  modal.onclick = (e)=>{ if(e.target===modal){ modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); } };
+
+  // enable top-right close
+  const closeBtn = $('.modal-close');
+  closeBtn.classList.remove('disabled');
+  closeBtn.onclick = () => { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); };
+
+  $('#modal-continue-btn').onclick = () => {
+    modal.classList.remove('active'); modal.setAttribute('aria-hidden','true');
+    setTimeout(()=> window.open(episodeUrl, '_blank'), 120);
+  };
+  modal.onclick = (e) => { if(e.target === modal) { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); } };
 }
 
+/* show ad modal with circular countdown and pulse when unlocked */
+function showAdModal(ad, episodeUrl){
+  const modal = $('#modal');
+  const content = $('#modal-content-container');
+  const actions = $('#modal-actions-area');
+
+  const videoSrc = ad && ad.video ? ad.video : '';
+  const advertiserLink = ad && ad.link ? ad.link : '#';
+  const adTitle = ad && ad.title ? ad.title : 'Рекламное предложение';
+  const adDesc = ad && ad.desc ? ad.desc : 'Краткое описание предложения от партнёра. Нажмите на видео, чтобы узнать подробности.';
+
+  // format desc into up to 3 lines (by sentences or by chunks)
+  function splitDesc(str){
+    if(!str) return '';
+    const parts = str.split(/\. |\n/).filter(Boolean);
+    if(parts.length <= 3) return parts.map(p => p.trim()).join('<br/>');
+    // if too long, split into ~3 chunks
+    const words = str.split(/\s+/);
+    const per = Math.ceil(words.length/3);
+    const out = [];
+    for(let i=0;i<3;i++){
+      out.push(words.slice(i*per,(i+1)*per).join(' '));
+    }
+    return out.map(p=>p.trim()).join('<br/>');
+  }
+
+  content.innerHTML = `
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Реклама</div>
+        <div class="ad-title">${escapeHtml(adTitle)}</div>
+      </div>
+    </div>
+
+    <div class="ad-video" id="ad-video-wrap" title="Нажмите, чтобы перейти к рекламодателю">
+      <video id="ad-video" playsinline muted autoplay loop preload="metadata" tabindex="0">
+        ${videoSrc ? `<source src="${videoSrc}" type="video/mp4">` : ''}
+      </video>
+      <div class="ad-overlay"><div class="ad-cta"><i class="fas fa-external-link-alt"></i> Перейти</div></div>
+    </div>
+
+    <div class="modal-body">
+      <div class="ad-desc">${splitDesc(adDesc)}</div>
+      <div style="color:var(--text-secondary);font-size:0.92rem">Кнопка продолжения будет доступна по таймеру.</div>
+    </div>
+  `;
+
+  // actions: circular progress + single CTA
+  actions.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="position:relative;display:inline-block">
+        <svg class="count-ring" viewBox="0 0 44 44" id="count-svg">
+          <defs></defs>
+          <g transform="rotate(-90 22 22)">
+            <circle cx="22" cy="22" r="18" stroke="rgba(255,255,255,0.08)" stroke-width="4" fill="none"></circle>
+            <circle id="count-progress" cx="22" cy="22" r="18" stroke="url(#grad1)" stroke-width="4" stroke-linecap="round" fill="none" stroke-dasharray="113.097" stroke-dashoffset="113.097"></circle>
+          </g>
+        </svg>
+        <div class="count-number" id="count-number" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-weight:700;font-size:0.85rem;color:var(--text-primary)">${ADS_LOCK_SECONDS}</div>
+      </div>
+
+      <button class="btn-cta" id="modal-continue-btn" disabled><span id="continue-text">Продолжить через ${ADS_LOCK_SECONDS}s</span></button>
+    </div>
+  `;
+
+  // show modal
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden','false');
+
+  // disable top-right close until unlocked
+  const closeBtn = $('.modal-close');
+  closeBtn.classList.add('disabled');
+  closeBtn.onclick = null;
+
+  const videoWrap = $('#ad-video-wrap');
+  const videoEl = $('#ad-video');
+  const continueBtn = $('#modal-continue-btn');
+  const continueText = $('#continue-text');
+  const countNumber = $('#count-number');
+  const progressCircle = $('#count-progress');
+
+  // clicking video -> advertiser link immediately
+  videoWrap.onclick = () => { if(advertiserLink && advertiserLink !== '#') window.open(advertiserLink, '_blank'); };
+  if(videoEl){
+    videoEl.addEventListener('keydown', (ev) => {
+      if(ev.key === 'Enter' || ev.key === ' '){
+        ev.preventDefault();
+        if(advertiserLink && advertiserLink !== '#') window.open(advertiserLink, '_blank');
+      }
+    });
+  }
+
+  // prepare circular progress math
+  const r = 18;
+  const circumference = 2 * Math.PI * r;
+  progressCircle.style.strokeDasharray = `${circumference}`;
+  // initial offset = full (hidden)
+  progressCircle.style.strokeDashoffset = `${circumference}`;
+
+  // create gradient for stroke (insert into svg)
+  (function addGrad(){
+    const svg = $('#count-svg');
+    if(!svg) return;
+    const ns = "http://www.w3.org/2000/svg";
+    // avoid duplicating
+    if(svg.querySelector('#grad1')) return;
+    const defs = document.createElementNS(ns,'defs');
+    const lin = document.createElementNS(ns,'linearGradient');
+    lin.setAttribute('id','grad1');
+    lin.setAttribute('x1','0%'); lin.setAttribute('y1','0%'); lin.setAttribute('x2','100%'); lin.setAttribute('y2','0%');
+    const stop1 = document.createElementNS(ns,'stop'); stop1.setAttribute('offset','0%'); stop1.setAttribute('stop-color','#7c3aed');
+    const stop2 = document.createElementNS(ns,'stop'); stop2.setAttribute('offset','100%'); stop2.setAttribute('stop-color','#a78bfa');
+    lin.appendChild(stop1); lin.appendChild(stop2);
+    defs.appendChild(lin);
+    svg.prepend(defs);
+  })();
+
+  // countdown
+  let remaining = ADS_LOCK_SECONDS;
+  // set initial visuals
+  countNumber.textContent = remaining;
+  continueText.textContent = `Продолжить через ${remaining}s`;
+  // set initial offset (full)
+  progressCircle.style.transition = 'stroke-dashoffset 0.4s linear';
+  progressCircle.style.strokeDashoffset = `${circumference}`;
+
+  const start = Date.now();
+  const endTime = start + ADS_LOCK_SECONDS * 1000;
+
+  const tick = () => {
+    const now = Date.now();
+    const elapsed = Math.min(now - start, ADS_LOCK_SECONDS * 1000);
+    const frac = elapsed / (ADS_LOCK_SECONDS * 1000);
+    const offset = Math.max(0, circumference * (1 - frac));
+    progressCircle.style.strokeDashoffset = offset;
+    const secLeft = Math.max(0, Math.ceil((endTime - now) / 1000));
+    countNumber.textContent = secLeft;
+    continueText.textContent = secLeft > 0 ? `Продолжить через ${secLeft}s` : 'Продолжить просмотр';
+    if(now >= endTime){
+      // unlock
+      clearInterval(timerId);
+      // ensure visuals set to 0
+      progressCircle.style.strokeDashoffset = 0;
+      countNumber.textContent = 0;
+      continueText.textContent = 'Продолжить просмотр';
+      continueBtn.disabled = false;
+      closeBtn.classList.remove('disabled');
+      closeBtn.onclick = () => { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); };
+      // pulse effect on CTA to attract attention
+      continueBtn.classList.add('pulse');
+      continueBtn.onclick = () => {
+        modal.classList.remove('active'); modal.setAttribute('aria-hidden','true');
+        setTimeout(()=> window.open(episodeUrl, '_blank'), 160);
+      };
+      // allow clicking backdrop now
+      modal.onclick = (e) => { if(e.target === modal) { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); } };
+    }
+  };
+
+  // initial immediate tick for precise display
+  tick();
+  const timerId = setInterval(tick, 250);
+}
+
+/* safe escape */
+function escapeHtml(str){
+  if(!str) return '';
+  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+
+/* start */
 document.addEventListener('DOMContentLoaded', loadAnime);
 </script>
 </body>
 </html>
+
 
