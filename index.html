@@ -87,7 +87,6 @@ body{
 /* ensure inner wrapper does not break grid (allow children to participate in grid) */
 .episodes-inner {
   display: contents;
-  /* fallback: if browser doesn't support display:contents, make sure buttons are full width */
 }
 
 /* episode buttons */
@@ -128,8 +127,8 @@ body{
 .modal.active .modal-card{transform:translateY(0) scale(1)}
 
 .modal-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
-.modal-title{font-size:1.15rem;color:var(--accent-primary);font-weight:700}
-.modal-body{color:var(--text-secondary);line-height:1.5;margin-bottom:12px}
+.modal-title{font-size:1.2rem;color:var(--accent-primary);font-weight:700}
+.modal-body{color:var(--text-secondary);line-height:1.6;margin-bottom:12px; font-size:1rem;}
 
 /* ad video */
 .ad-video{
@@ -138,7 +137,8 @@ body{
 }
 .ad-video video{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer}
 .ad-overlay{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-end;padding:10px;pointer-events:none}
-.ad-cta{pointer-events:auto;background:rgba(0,0,0,0.45);color:white;padding:6px 10px;border-radius:8px;font-weight:600;margin-left:8px}
+.ad-cta{pointer-events:auto;background:rgba(0,0,0,0.6);color:white;padding:8px 12px;border-radius:8px;font-weight:700;margin-left:8px;transition:transform .2s}
+.ad-cta:hover{transform:scale(1.05);background:rgba(124,58,237,0.8);}
 
 /* buttons */
 .modal-actions{display:flex;gap:10px;justify-content:center;align-items:center}
@@ -177,55 +177,37 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-size:0.9rem;pad
   <div class="modal-card" role="document">
     <button class="modal-close" aria-label="Закрыть">✕</button>
 
-    <div id="modal-content-container">
-      <!-- content injected dynamically: either welcome or ad -->
-    </div>
-
+    <div id="modal-content-container"></div>
     <div style="height:8px;"></div>
     <div id="modal-actions-area" class="modal-actions" style="padding-bottom:6px"></div>
   </div>
 </div>
 
 <script>
-/* CONFIG:
-  - ADS_MODE: 'sequential' or 'random'
-  - AD_SOURCE: path to ads json
-  - ADS_LOCK_SECONDS: seconds to block close/continue on ad modals
-*/
-const ADS_MODE = 'sequential'; // 'random' possible
+const ADS_MODE = 'sequential';
 const AD_SOURCE = 'ads.json';
 const ADS_LOCK_SECONDS = 10;
 
-/* Utilities */
 function $(sel, ctx=document){ return ctx.querySelector(sel) }
 function $all(sel, ctx=document){ return Array.from((ctx||document).querySelectorAll(sel)) }
 
-/* State */
 let animeId = null;
 let ads = [];
 let adsIndex = parseInt(localStorage.getItem('ads_index')||'0', 10) || 0;
 
-/* Load ads.json (swallow errors) */
 async function loadAds(){
   try{
     const r = await fetch(AD_SOURCE);
     if(!r.ok) throw new Error('no ads');
     const j = await r.json();
     if(Array.isArray(j.ads)) ads = j.ads;
-  }catch(e){
-    console.warn('ads load failed', e);
-    ads = [];
-  }
+  }catch(e){ ads = []; console.warn('ads load failed', e); }
 }
 
-/* Main load */
 async function loadAnime(){
   const params = new URLSearchParams(location.search);
   animeId = params.get('anime') || 'demo-anime';
-  // load ads first
   await loadAds();
-
-  // fetch anime json
   try{
     const res = await fetch(`data/${animeId}.json`);
     if(!res.ok) throw new Error('anime json not found');
@@ -233,32 +215,22 @@ async function loadAnime(){
     renderAnime(data);
   }catch(err){
     console.error(err);
-    // minimal fallback: show message
     document.getElementById('anime-title').textContent = 'Аниме не найдено';
   }
 }
 
-/* Render seasons & episodes */
 function renderAnime(data){
   document.getElementById('anime-title').textContent = data.title || 'Аниме';
   const container = document.getElementById('seasons-container');
-
-  // load last-watched from localStorage
   let lastWatched = null;
   try{ lastWatched = JSON.parse(localStorage.getItem(animeId + '_lastEpisode') || 'null'); } catch(e){ lastWatched = null; }
-
-  // watched counter
   let watchedCount = parseInt(localStorage.getItem(animeId + '_watch_count') || '0', 10);
 
-  // UI top info
   const topInfo = $('#last-watched-info');
   if(lastWatched && lastWatched.episode != null && lastWatched.season != null){
     topInfo.textContent = `Последняя серия, которую вы посмотрели: ${lastWatched.episode}, ${lastWatched.season} сезона`;
-  } else {
-    topInfo.textContent = '';
-  }
+  } else topInfo.textContent = '';
 
-  // Build seasons
   data.seasons.forEach((season, sIndex) => {
     const seasonDiv = document.createElement('div'); seasonDiv.className = 'season';
     const header = document.createElement('div'); header.className = 'season-header';
@@ -267,40 +239,29 @@ function renderAnime(data){
 
     const episodes = document.createElement('div'); episodes.className = 'episodes';
     const inner = document.createElement('div'); inner.className = 'episodes-inner';
-    // create episode buttons
     season.episodes.forEach(ep => {
       const btn = document.createElement('button');
       btn.className = 'episode-btn';
       btn.dataset.season = (sIndex+1);
       btn.dataset.ep = ep.number;
-      // number + optional duration (avoid undefined)
       const dur = ep.duration ? `<div class="episode-duration">${ep.duration}</div>` : '';
       btn.innerHTML = `<div class="episode-number">${ep.number}</div>${dur}`;
-      // highlight last/next
       if(lastWatched){
         const lwSeason = Number(lastWatched.season), lwEp = Number(lastWatched.episode);
         if(lwSeason === (sIndex+1) && ep.number === lwEp) btn.classList.add('last-watched');
         if(lwSeason === (sIndex+1) && ep.number === lwEp + 1) btn.classList.add('next-watch');
       }
       btn.addEventListener('click', () => {
-        // increment watch count and store
         watchedCount++; localStorage.setItem(animeId + '_watch_count', watchedCount);
-        // save last watched
         localStorage.setItem(animeId + '_lastEpisode', JSON.stringify({ season: sIndex+1, episode: ep.number }));
-        // update UI top and highlights
         updateLastWatchedUI();
-        // decide which modal to show:
-        // first modal (count===1) -> welcome (non-blocking)
-        // after that, show ad modal every 2 views (i.e., if watchedCount===1 OR watchedCount % 2 === 0 show ad)
         if(watchedCount === 1){
           showWelcomeModal(ep.url);
         } else {
-          // show ad every 2 views
           if(watchedCount % 2 === 0 && ads.length > 0){
             const ad = selectAd();
             showAdModal(ad, ep.url);
           } else {
-            // directly open episode
             window.open(ep.url, '_blank');
           }
         }
@@ -312,10 +273,8 @@ function renderAnime(data){
     seasonDiv.appendChild(episodes);
     container.appendChild(seasonDiv);
 
-    // header toggle with smooth animation
     header.addEventListener('click', () => {
       const isOpen = seasonDiv.classList.contains('open');
-      // close others
       document.querySelectorAll('.season.open').forEach(s => {
         if(s !== seasonDiv){
           s.classList.remove('open');
@@ -326,11 +285,9 @@ function renderAnime(data){
       const eps = seasonDiv.querySelector('.episodes');
       if(!isOpen){
         seasonDiv.classList.add('open');
-        // set explicit maxHeight for transition
-        eps.style.maxHeight = eps.scrollHeight + 80 + 'px'; // extra space to avoid clipping
+        eps.style.maxHeight = eps.scrollHeight + 80 + 'px';
         eps.style.opacity = '1';
       } else {
-        // close current smoothly
         eps.style.maxHeight = eps.scrollHeight + 'px';
         requestAnimationFrame(()=>{ eps.style.maxHeight = '0'; eps.style.opacity = '0' });
         seasonDiv.classList.remove('open');
@@ -338,16 +295,14 @@ function renderAnime(data){
     });
   });
 
-  // helper to update last watched UI and highlight next
   function updateLastWatchedUI(){
     let last = null;
-    try{ last = JSON.parse(localStorage.getItem(animeId + '_lastEpisode') || 'null'); }catch(e){ last = null; }
+    try{ last = JSON.parse(localStorage.getItem(animeId + '_lastEpisode') || 'null');}catch(e){ last = null; }
     const top = $('#last-watched-info');
     if(last && last.episode != null && last.season != null){
       top.textContent = `Последняя серия, которую вы посмотрели: ${last.episode}, ${last.season} сезона`;
     } else top.textContent = '';
 
-    // update classes
     document.querySelectorAll('.episode-btn').forEach(btn => {
       btn.classList.remove('last-watched','next-watch');
       const bSeason = Number(btn.dataset.season), bEp = Number(btn.dataset.ep);
@@ -359,14 +314,12 @@ function renderAnime(data){
   }
 }
 
-/* AD selection */
 function selectAd(){
   if(!ads || ads.length === 0) return null;
   if(ADS_MODE === 'random'){
     const idx = Math.floor(Math.random() * ads.length);
     return ads[idx];
   } else {
-    // sequential
     const idx = adsIndex % ads.length;
     const ad = ads[idx];
     adsIndex = (adsIndex + 1) % ads.length;
@@ -375,45 +328,34 @@ function selectAd(){
   }
 }
 
-/* MODALS */
-
-/* show welcome modal (non-blocking immediate) */
 function showWelcomeModal(episodeUrl){
   const modal = $('#modal');
   const content = $('#modal-content-container');
   const actions = $('#modal-actions-area');
   content.innerHTML = `
-    <div class="modal-header"><div class="modal-title">Спасибо, что с нами!</div></div>
-    <div class="modal-body">Наш сервис полностью бесплатен 💜 Иногда вы можете увидеть рекламу — она помогает нам развиваться. Если хотите поддержать проект — можно донатить звёздами на главной странице бота. Приятного просмотра!</div>
+    <div class="modal-header"><div class="modal-title">Добро пожаловать!</div></div>
+    <div class="modal-body">Вы находитесь в нашем медиагиде 💜 Иногда мы показываем рекламу — это помогает проекту расти. Наслаждайтесь просмотром любимых аниме и поддержите проект при желании!</div>
   `;
   actions.innerHTML = `<button class="btn secondary" id="modal-close-btn">Закрыть</button>
                        <button class="btn" id="modal-continue-btn">Продолжить просмотр</button>`;
-  // show modal
+
   modal.classList.add('active');
   modal.setAttribute('aria-hidden','false');
 
-  // close handlers - immediate allowed
   const closeBtn = $('.modal-close'); closeBtn.onclick = () => { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); };
   $('#modal-close-btn').onclick = () => { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); };
   $('#modal-continue-btn').onclick = () => {
     modal.classList.remove('active'); modal.setAttribute('aria-hidden','true');
-    // open episode after tiny delay to ensure modal closed smoothly
     setTimeout(()=> window.open(episodeUrl, '_blank'), 120);
   };
-  // clicking backdrop closes
   modal.onclick = (e) => { if(e.target === modal) { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); } };
 }
 
-/* show ad modal: contains video (click -> advertiser.link), and continue -> episode link
-   ad: { video: "...", link: "..." }  episodeUrl: string
-   NOTE: close and continue are locked for ADS_LOCK_SECONDS
-*/
 function showAdModal(ad, episodeUrl){
   const modal = $('#modal');
   const content = $('#modal-content-container');
   const actions = $('#modal-actions-area');
 
-  // build ad block
   const videoSrc = ad && ad.video ? ad.video : '';
   const advertiserLink = ad && ad.link ? ad.link : '#';
 
@@ -422,77 +364,59 @@ function showAdModal(ad, episodeUrl){
     <div class="ad-video" id="ad-video-wrap">
       <video id="ad-video" playsinline muted autoplay loop preload="metadata">
         ${videoSrc ? `<source src="${videoSrc}" type="video/mp4">` : ''}
-        <!-- fallback -->
       </video>
       <div class="ad-overlay"><div class="ad-cta">Перейти</div></div>
     </div>
-    <div class="modal-body">Реклама предоставлена партнёром. Нажмите на видео, чтобы перейти на сайт рекламодателя. Кнопка продолжения и закрытия разблокируется через <span id="ad-countdown">${ADS_LOCK_SECONDS}</span>s.</div>
+    <div class="modal-body">Спонсированная реклама 🎬 Нажмите на видео, чтобы перейти на сайт рекламодателя. Кнопка продолжения и закрытия разблокируется через <span id="ad-countdown">${ADS_LOCK_SECONDS}</span>s.</div>
   `;
 
   actions.innerHTML = `<button class="btn secondary" id="modal-close-btn" disabled>Закрыть</button>
                        <button class="btn" id="modal-continue-btn" disabled>Продолжить через ${ADS_LOCK_SECONDS}s</button>`;
 
-  // show modal
   modal.classList.add('active');
   modal.setAttribute('aria-hidden','false');
 
-  const videoEl = $('#ad-video');
   const videoWrap = $('#ad-video-wrap');
   const closeBtn = $('.modal-close');
-
-  // clicking video should redirect to advertiser immediately (this is allowed)
-  videoWrap.onclick = (e) => {
-    // open advertiser link in new tab/window
-    if(advertiserLink && advertiserLink !== '#') window.open(advertiserLink, '_blank');
-  };
-
-  // disable close and continue for ADS_LOCK_SECONDS
   const closeActionBtn = $('#modal-close-btn');
   const continueBtn = $('#modal-continue-btn');
-  closeBtn.onclick = null; // disabled during lock
+
+  videoWrap.onclick = () => { if(advertiserLink && advertiserLink !== '#') window.open(advertiserLink, '_blank'); };
+
+  closeBtn.onclick = null;
   closeActionBtn.disabled = true;
   continueBtn.disabled = true;
 
-  // countdown display and enable after seconds
   let remaining = ADS_LOCK_SECONDS;
   const countdownSpan = $('#ad-countdown');
-
-  // ensure UI shows initial number
   countdownSpan.textContent = remaining;
   continueBtn.textContent = `Продолжить через ${remaining}s`;
 
   const timer = setInterval(()=>{
     remaining--;
-    if(countdownSpan) countdownSpan.textContent = remaining;
+    countdownSpan.textContent = remaining;
     continueBtn.textContent = remaining>0 ? `Продолжить через ${remaining}s` : 'Продолжить просмотр';
     if(remaining <= 0){
       clearInterval(timer);
-      // enable controls
       closeBtn.onclick = () => { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); };
       closeActionBtn.disabled = false;
       continueBtn.disabled = false;
-
-      // bind continue: close and open episode
-      continueBtn.onclick = (e) => {
+      continueBtn.onclick = () => {
         modal.classList.remove('active'); modal.setAttribute('aria-hidden','true');
         setTimeout(()=> window.open(episodeUrl, '_blank'), 160);
       };
     }
   }, 1000);
 
-  // prevent backdrop clicks from closing before unlocked
   modal.onclick = (e) => {
-    if(e.target === modal){
-      // only allow if unlocked
-      if(remaining <= 0){
-        modal.classList.remove('active'); modal.setAttribute('aria-hidden','true');
-      }
+    if(e.target === modal && remaining <= 0){
+      modal.classList.remove('active'); modal.setAttribute('aria-hidden','true');
     }
   };
 }
 
-/* start */
 document.addEventListener('DOMContentLoaded', loadAnime);
 </script>
 </body>
 </html>
+
