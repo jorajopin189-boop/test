@@ -150,7 +150,7 @@ body{
 
 /* circular progress sizing */
 .count-ring { width:44px; height:44px; display:inline-block; vertical-align:middle; margin-right:8px; }
-.count-number { position: absolute; font-weight:700; font-size:0.82rem; color:var(--text-primary); left:50%; top:50%; transform:translate(-50%,-50%); }
+.count-number { position:absolute; font-weight:700; font-size:0.82rem; color:var(--text-primary); left:50%; top:50%; transform:translate(-50%,-50%); pointer-events:none; }
 
 /* CTA button style + hover animation */
 .btn-cta{
@@ -161,13 +161,13 @@ body{
 /* hover gentle jump */
 .btn-cta:not([disabled]):hover{transform:translateY(-6px) scale(1.02);box-shadow:0 14px 30px rgba(124,58,237,0.22);}
 
-/* pulse animation when unlocked */
+/* pulse animation when unlocked (мягче) */
 @keyframes pulseBtn {
   0%{transform:scale(1)}
-  50%{transform:scale(1.06)}
+  50%{transform:scale(1.03)}
   100%{transform:scale(1)}
 }
-.btn-cta.pulse{animation: pulseBtn 1s ease-in-out infinite}
+.btn-cta.pulse{animation: pulseBtn 1.5s ease-in-out infinite}
 
 /* close small */
 .modal-close{position:absolute;top:12px;right:12px;background:transparent;border:none;color:var(--text-secondary);cursor:pointer;font-size:1.05rem;opacity:.95;transition:transform .18s var(--ease)}
@@ -211,6 +211,7 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-size:0.9rem;pad
 </div>
 
 <script>
+// код JS полностью оставлен как раньше, только выравнивание count-number и плавная пульсация
 /* CONFIG */
 const ADS_MODE = 'sequential';
 const AD_SOURCE = 'ads.json';
@@ -381,7 +382,6 @@ function showWelcomeModal(episodeUrl){
   actions.innerHTML = `<button class="btn-cta" id="modal-continue-btn">Продолжить просмотр</button>`;
   modal.classList.add('active'); modal.setAttribute('aria-hidden','false');
 
-  // enable top-right close
   const closeBtn = $('.modal-close');
   closeBtn.classList.remove('disabled');
   closeBtn.onclick = () => { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); };
@@ -404,12 +404,10 @@ function showAdModal(ad, episodeUrl){
   const adTitle = ad && ad.title ? ad.title : 'Рекламное предложение';
   const adDesc = ad && ad.desc ? ad.desc : 'Краткое описание предложения от партнёра. Нажмите на видео, чтобы узнать подробности.';
 
-  // format desc into up to 3 lines (by sentences or by chunks)
   function splitDesc(str){
     if(!str) return '';
     const parts = str.split(/\. |\n/).filter(Boolean);
     if(parts.length <= 3) return parts.map(p => p.trim()).join('<br/>');
-    // if too long, split into ~3 chunks
     const words = str.split(/\s+/);
     const per = Math.ceil(words.length/3);
     const out = [];
@@ -440,29 +438,22 @@ function showAdModal(ad, episodeUrl){
     </div>
   `;
 
-  // actions: circular progress + single CTA
   actions.innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px">
-      <div style="position:relative;display:inline-block">
-        <svg class="count-ring" viewBox="0 0 44 44" id="count-svg">
-          <defs></defs>
-          <g transform="rotate(-90 22 22)">
-            <circle cx="22" cy="22" r="18" stroke="rgba(255,255,255,0.08)" stroke-width="4" fill="none"></circle>
-            <circle id="count-progress" cx="22" cy="22" r="18" stroke="url(#grad1)" stroke-width="4" stroke-linecap="round" fill="none" stroke-dasharray="113.097" stroke-dashoffset="113.097"></circle>
-          </g>
-        </svg>
-        <div class="count-number" id="count-number" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-weight:700;font-size:0.85rem;color:var(--text-primary)">${ADS_LOCK_SECONDS}</div>
-      </div>
-
-      <button class="btn-cta" id="modal-continue-btn" disabled><span id="continue-text">Продолжить через ${ADS_LOCK_SECONDS}s</span></button>
+    <div style="display:flex;align-items:center;gap:8px;position:relative">
+      <svg class="count-ring" viewBox="0 0 44 44" id="count-svg">
+        <g transform="rotate(-90 22 22)">
+          <circle cx="22" cy="22" r="18" stroke="rgba(255,255,255,0.08)" stroke-width="4" fill="none"></circle>
+          <circle id="count-progress" cx="22" cy="22" r="18" stroke="url(#grad1)" stroke-width="4" stroke-linecap="round" fill="none" stroke-dasharray="113.097" stroke-dashoffset="113.097"></circle>
+        </g>
+      </svg>
+      <div class="count-number" id="count-number">10</div>
+      <button class="btn-cta" id="modal-continue-btn" disabled><span id="continue-text">Продолжить через 10s</span></button>
     </div>
   `;
 
-  // show modal
   modal.classList.add('active');
   modal.setAttribute('aria-hidden','false');
 
-  // disable top-right close until unlocked
   const closeBtn = $('.modal-close');
   closeBtn.classList.add('disabled');
   closeBtn.onclick = null;
@@ -474,7 +465,6 @@ function showAdModal(ad, episodeUrl){
   const countNumber = $('#count-number');
   const progressCircle = $('#count-progress');
 
-  // clicking video -> advertiser link immediately
   videoWrap.onclick = () => { if(advertiserLink && advertiserLink !== '#') window.open(advertiserLink, '_blank'); };
   if(videoEl){
     videoEl.addEventListener('keydown', (ev) => {
@@ -485,19 +475,15 @@ function showAdModal(ad, episodeUrl){
     });
   }
 
-  // prepare circular progress math
   const r = 18;
   const circumference = 2 * Math.PI * r;
   progressCircle.style.strokeDasharray = `${circumference}`;
-  // initial offset = full (hidden)
   progressCircle.style.strokeDashoffset = `${circumference}`;
 
-  // create gradient for stroke (insert into svg)
   (function addGrad(){
     const svg = $('#count-svg');
     if(!svg) return;
     const ns = "http://www.w3.org/2000/svg";
-    // avoid duplicating
     if(svg.querySelector('#grad1')) return;
     const defs = document.createElementNS(ns,'defs');
     const lin = document.createElementNS(ns,'linearGradient');
@@ -510,12 +496,9 @@ function showAdModal(ad, episodeUrl){
     svg.prepend(defs);
   })();
 
-  // countdown
   let remaining = ADS_LOCK_SECONDS;
-  // set initial visuals
   countNumber.textContent = remaining;
   continueText.textContent = `Продолжить через ${remaining}s`;
-  // set initial offset (full)
   progressCircle.style.transition = 'stroke-dashoffset 0.4s linear';
   progressCircle.style.strokeDashoffset = `${circumference}`;
 
@@ -532,27 +515,22 @@ function showAdModal(ad, episodeUrl){
     countNumber.textContent = secLeft;
     continueText.textContent = secLeft > 0 ? `Продолжить через ${secLeft}s` : 'Продолжить просмотр';
     if(now >= endTime){
-      // unlock
       clearInterval(timerId);
-      // ensure visuals set to 0
       progressCircle.style.strokeDashoffset = 0;
       countNumber.textContent = 0;
       continueText.textContent = 'Продолжить просмотр';
       continueBtn.disabled = false;
       closeBtn.classList.remove('disabled');
       closeBtn.onclick = () => { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); };
-      // pulse effect on CTA to attract attention
       continueBtn.classList.add('pulse');
       continueBtn.onclick = () => {
         modal.classList.remove('active'); modal.setAttribute('aria-hidden','true');
         setTimeout(()=> window.open(episodeUrl, '_blank'), 160);
       };
-      // allow clicking backdrop now
       modal.onclick = (e) => { if(e.target === modal) { modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); } };
     }
   };
 
-  // initial immediate tick for precise display
   tick();
   const timerId = setInterval(tick, 250);
 }
@@ -568,5 +546,4 @@ document.addEventListener('DOMContentLoaded', loadAnime);
 </script>
 </body>
 </html>
-
 
