@@ -4,40 +4,41 @@
     {
       "name": "Сезон 1",
       "episodes": [
-        {"number": 1, "url": "https://t.me/solo_leveling2222/5?t=0"},
-        {"number": 2, "url": "https://t.me/solo_leveling2222/6?t=0"},
-        {"number": 3, "url": "https://t.me/solo_leveling2222/7?t=0"},
-        {"number": 4, "url": "https://t.me/solo_leveling2222/8?t=0"},
-        {"number": 5, "url": "https://t.me/solo_leveling2222/9?t=0"},
-        {"number": 6, "url": "https://t.me/solo_leveling2222/10?t=0"},
-        {"number": 7, "url": "https://t.me/solo_leveling2222/11?t=0"},
-        {"number": 8, "url": "https://t.me/solo_leveling2222/12?t=0"},
-        {"number": 9, "url": "https://t.me/solo_leveling2222/13?t=0"},
-        {"number": 10, "url": "https://t.me/solo_leveling2222/14?t=0"},
-        {"number": 11, "url": "https://t.me/solo_leveling2222/15?t=0"},
-        {"number": 12, "url": "https://t.me/solo_leveling2222/16?t=0"}
+        {"number": 1, "duration": "23:40", "url": "https://t.me/solo_leveling2222/5?t=0"},
+        {"number": 2, "duration": "23:40", "url": "https://t.me/solo_leveling2222/6?t=0"},
+        {"number": 3, "duration": "23:40", "url": "https://t.me/solo_leveling2222/7?t=0"},
+        {"number": 4, "duration": "24:40", "url": "https://t.me/solo_leveling2222/8?t=0"},
+        {"number": 5, "duration": "23:41", "url": "https://t.me/solo_leveling2222/9?t=0"},
+        {"number": 6, "duration": "23:41", "url": "https://t.me/solo_leveling2222/10?t=0"},
+        {"number": 7, "duration": "23:41", "url": "https://t.me/solo_leveling2222/11?t=0"},
+        {"number": 8, "duration": "23:42", "url": "https://t.me/solo_leveling2222/12?t=0"},
+        {"number": 9, "duration": "23:41", "url": "https://t.me/solo_leveling2222/13?t=0"},
+        {"number": 10, "duration": "23:40", "url": "https://t.me/solo_leveling2222/14?t=0"},
+        {"number": 11, "duration": "23:40", "url": "https://t.me/solo_leveling2222/15?t=0"},
+        {"number": 12, "duration": "23:40", "url": "https://t.me/solo_leveling2222/16?t=0"}
       ]
     },
     {
       "name": "Сезон 2",
       "episodes": [
-        {"number": 1, "url": "https://t.me/solo_leveling2222/19?t=0"},
-        {"number": 2, "url": "https://t.me/solo_leveling2222/20?t=0"},
-        {"number": 3, "url": "https://t.me/solo_leveling2222/21?t=0"},
-        {"number": 4, "url": "https://t.me/solo_leveling2222/22?t=0"},
-        {"number": 5, "url": "https://t.me/solo_leveling2222/23?t=0"},
-        {"number": 6, "url": "https://t.me/solo_leveling2222/24?t=0"},
-        {"number": 7, "url": "https://t.me/solo_leveling2222/25?t=0"},
-        {"number": 8, "url": "https://t.me/solo_leveling2222/26?t=0"},
-        {"number": 9, "url": "https://t.me/solo_leveling2222/27?t=0"},
-        {"number": 10, "url": "https://t.me/solo_leveling2222/28?t=0"},
-        {"number": 11, "url": "https://t.me/solo_leveling2222/29?t=0"},
-        {"number": 12, "url": "https://t.me/solo_leveling2222/30?t=0"},
-        {"number": 13, "url": "https://t.me/solo_leveling2222/31?t=0"}
+        {"number": 1, "duration": "23:40", "url": "https://t.me/solo_leveling2222/19?t=0"},
+        {"number": 2, "duration": "23:40", "url": "https://t.me/solo_leveling2222/20?t=0"},
+        {"number": 3, "duration": "23:39", "url": "https://t.me/solo_leveling2222/21?t=0"},
+        {"number": 4, "duration": "23:40", "url": "https://t.me/solo_leveling2222/22?t=0"},
+        {"number": 5, "duration": "23:40", "url": "https://t.me/solo_leveling2222/23?t=0"},
+        {"number": 6, "duration": "23:40", "url": "https://t.me/solo_leveling2222/24?t=0"},
+        {"number": 7, "duration": "23:40", "url": "https://t.me/solo_leveling2222/25?t=0"},
+        {"number": 8, "duration": "23:40", "url": "https://t.me/solo_leveling2222/26?t=0"},
+        {"number": 9, "duration": "23:40", "url": "https://t.me/solo_leveling2222/27?t=0"},
+        {"number": 10, "duration": "23:40", "url": "https://t.me/solo_leveling2222/28?t=0"},
+        {"number": 11, "duration": "23:40", "url": "https://t.me/solo_leveling2222/29?t=0"},
+        {"number": 12, "duration": "23:40", "url": "https://t.me/solo_leveling2222/30?t=0"},
+        {"number": 13, "duration": "23:40", "url": "https://t.me/solo_leveling2222/31?t=0"}
       ]
     }
   ]
 }
+
 
 
 
