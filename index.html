@@ -223,16 +223,25 @@ let adsIndex = parseInt(localStorage.getItem('ads_index')||'0', 10) || 0;
 
 /* load ads.json */
 async function loadAds(){
-  try{
+  try {
     const r = await fetch(AD_SOURCE);
     if(!r.ok) throw new Error('no ads');
     const j = await r.json();
-    if(Array.isArray(j.ads)) ads = j.ads;
-  }catch(e){
+
+    // новая проверка — если реклама выключена
+    if (j.enabled === false) {
+      console.log("Реклама отключена в ads.json");
+      ads = [];
+      return;
+    }
+
+    if (Array.isArray(j.ads)) ads = j.ads;
+  } catch(e) {
     console.warn('ads load failed', e);
     ads = [];
   }
 }
+
 
 /* main load */
 async function loadAnime(){
@@ -503,5 +512,6 @@ document.addEventListener('DOMContentLoaded', loadAnime);
 </script>
 </body>
 </html>
+
 
 
